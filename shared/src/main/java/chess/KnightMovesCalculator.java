@@ -13,14 +13,12 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         this.board = board;
     }
 
-    private boolean onBoard(ChessPosition positionInQuestion) {
+    // TODO: Ask why this is static?
+    // Checks if a position is on the board
+    public static boolean onBoard(ChessPosition positionInQuestion) {
         int i = positionInQuestion.getRow();
         int j = positionInQuestion.getColumn();
-        if ((1 <= i && i <= 8) && (1 <= j && j <= 8)) {
-            return true;
-        } else {
-            return false;
-        }
+        return (1 <= i && i <= 8) && (1 <= j && j <= 8);
     }
 
     @Override
@@ -35,63 +33,83 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         int j = this.position.getColumn() - 1;
         ChessPosition positionInQuestion = new ChessPosition(i, j);
         ChessPiece pieceAtPosition = board.getPiece(positionInQuestion);
-        if (1 <= i <= 8 && 1 <= j <= 8) {
-            validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-        }
-
-        // Two spaces in front
-        i = this.position.getRow() + 2;
-        j = this.position.getColumn();
-        positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
-        // We check that the position of i is 4, because that's the only valid 2-move row for white
-        if (i == 4 && pieceAtPosition == null) {
-            validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-        }
-
-        // Taking to top-left
-        i = this.position.getRow() + 1;
-        j = this.position.getColumn() - 1;
-        positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
-        // We check that the position of i is 4, because that's the only valid 2-move row for white
-        if (i <= 8 && j >= 1) {
-            // Has to be a piece there
-            if (pieceAtPosition != null) {
-                // Has to be other team's piece
-                if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                    validPromotions = handlePromotions(currentPiece, positionInQuestion);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                    } else {
-                        for (ChessPiece.PieceType promotion : validPromotions) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, promotion));
-                        }
-                    }
-                }
+        if (onBoard(positionInQuestion)) {
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
         }
 
-        // Taking to top-right
-        i = this.position.getRow() + 1;
+        i = this.position.getRow() + 2;
         j = this.position.getColumn() + 1;
         positionInQuestion = new ChessPosition(i, j);
         pieceAtPosition = board.getPiece(positionInQuestion);
-        // We check that the position of i is 4, because that's the only valid 2-move row for white
-        if (i <= 8 && j <= 8) {
-            // Has to be a piece there
-            if (pieceAtPosition != null) {
-                // Has to be other team's piece
-                if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                    validPromotions = handlePromotions(currentPiece, positionInQuestion);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                    } else {
-                        for (ChessPiece.PieceType promotion : validPromotions) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, promotion));
-                        }
-                    }
-                }
+        if (onBoard(positionInQuestion)) {
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            }
+        }
+
+
+        // Right Moves
+        i = this.position.getRow() + 1;
+        j = this.position.getColumn() + 2;
+        positionInQuestion = new ChessPosition(i, j);
+        pieceAtPosition = board.getPiece(positionInQuestion);
+        if (onBoard(positionInQuestion)) {
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            }
+        }
+
+        i = this.position.getRow() - 1;
+        j = this.position.getColumn() + 2;
+        positionInQuestion = new ChessPosition(i, j);
+        pieceAtPosition = board.getPiece(positionInQuestion);
+        if (onBoard(positionInQuestion)) {
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            }
+        }
+
+        // Bottom Moves
+        i = this.position.getRow() - 2;
+        j = this.position.getColumn() + 1;
+        positionInQuestion = new ChessPosition(i, j);
+        pieceAtPosition = board.getPiece(positionInQuestion);
+        if (onBoard(positionInQuestion)) {
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            }
+        }
+
+        i = this.position.getRow() - 2;
+        j = this.position.getColumn() - 1;
+        positionInQuestion = new ChessPosition(i, j);
+        pieceAtPosition = board.getPiece(positionInQuestion);
+        if (onBoard(positionInQuestion)) {
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            }
+        }
+
+        // Left Moves
+        i = this.position.getRow() - 1;
+        j = this.position.getColumn() - 2;
+        positionInQuestion = new ChessPosition(i, j);
+        pieceAtPosition = board.getPiece(positionInQuestion);
+        if (onBoard(positionInQuestion)) {
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            }
+        }
+
+        i = this.position.getRow() + 1;
+        j = this.position.getColumn() - 2;
+        positionInQuestion = new ChessPosition(i, j);
+        pieceAtPosition = board.getPiece(positionInQuestion);
+        if (onBoard(positionInQuestion)) {
+            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
         }
 

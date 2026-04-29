@@ -1,7 +1,9 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -57,10 +59,39 @@ public class ChessPiece {
         ChessPiece piece = board.getPiece(myPosition);
         if (piece.getPieceType() == PieceType.BISHOP) {
             calculator = new BishopMovesCalculator(myPosition, board);
+        } else if (piece.getPieceType() == PieceType.ROOK) {
+            calculator = new RookMovesCalculator(myPosition, board);
+        } else if (piece.getPieceType() == PieceType.QUEEN) {
+            calculator = new QueenMovesCalculator(myPosition, board);
+        } else if (piece.getPieceType() == PieceType.KING) {
+            calculator = new KingMovesCalculator(myPosition, board);
+        } else if (piece.getPieceType() == PieceType.KNIGHT) {
+            calculator = new KnightMovesCalculator(myPosition, board);
+        } else if (piece.getPieceType() == PieceType.PAWN) {
+            calculator = new PawnMovesCalculator(myPosition, board);
         }
         else {
-            calculator = new BishopMovesCalculator(myPosition, board);
+            return new ArrayList<ChessMove>();
         }
         return calculator.pieceMoves();
+    }
+
+    @Override
+    public String toString() {
+        // If you include a string in the addition, it will automatically cast to a string
+        return type + " " + pieceColor;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ChessPiece that)) {
+            return false;
+        }
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 }
