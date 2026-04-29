@@ -22,14 +22,16 @@ public class KingMovesCalculator implements PieceMovesCalculator {
             for (int j=this.position.getColumn() - 1; j <= this.position.getColumn() + 1; j++) {
                 // To start, I create a new position and grab the piece at that position
                 ChessPosition positionInQuestion = new ChessPosition(i, j);
-                ChessPiece pieceAtPosition = board.getPiece(positionInQuestion);
-                if (this.position != positionInQuestion && KnightMovesCalculator.onBoard(positionInQuestion)) {
-                    // Check if nothing at the position
-                    if (pieceAtPosition == null) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                    } else {
-                        if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                if (KnightMovesCalculator.onBoard(positionInQuestion)) {
+                    ChessPiece pieceAtPosition = board.getPiece(positionInQuestion);
+                    if (this.position != positionInQuestion) {
+                        // Check if nothing at the position
+                        if (pieceAtPosition == null) {
                             validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+                        } else {
+                            if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
+                                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+                            }
                         }
                     }
                 }

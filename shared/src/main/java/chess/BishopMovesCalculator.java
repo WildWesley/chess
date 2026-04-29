@@ -31,7 +31,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         while (i <= 8 && j <= 8) {
             ChessPosition positionInQuestion = new ChessPosition(i,j);
             ChessPiece pieceAtPosition = this.board.getPiece(positionInQuestion);
-            if (positionInQuestion != this.position) {
+            if (!positionInQuestion.equals(this.position)) {
                 if (pieceAtPosition == null) {
                     validMoves.add(new ChessMove(this.position, positionInQuestion, null));
                     i++;
@@ -61,7 +61,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         while (i >= 1 && j <= 8) {
             ChessPosition positionInQuestion = new ChessPosition(i,j);
             ChessPiece pieceAtPosition = this.board.getPiece(positionInQuestion);
-            if (positionInQuestion != this.position) {
+            if (!positionInQuestion.equals(this.position)) {
                 if (pieceAtPosition == null) {
                     validMoves.add(new ChessMove(this.position, positionInQuestion, null));
                     i--;
@@ -91,7 +91,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         while (i >= 1 && j >= 1) {
             ChessPosition positionInQuestion = new ChessPosition(i,j);
             ChessPiece pieceAtPosition = this.board.getPiece(positionInQuestion);
-            if (positionInQuestion != this.position) {
+            if (!positionInQuestion.equals(this.position)) {
                 if (pieceAtPosition == null) {
                     validMoves.add(new ChessMove(this.position, positionInQuestion, null));
                     i--;
@@ -121,7 +121,7 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         while (i <= 8 && j >= 1) {
             ChessPosition positionInQuestion = new ChessPosition(i,j);
             ChessPiece pieceAtPosition = this.board.getPiece(positionInQuestion);
-            if (positionInQuestion != this.position) {
+            if (!positionInQuestion.equals(this.position)) {
                 if (pieceAtPosition == null) {
                     validMoves.add(new ChessMove(this.position, positionInQuestion, null));
                     i++;

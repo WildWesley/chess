@@ -27,13 +27,14 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         ChessPiece currentPiece = board.getPiece(this.position);
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         ArrayList<ChessPiece.PieceType> validPromotions;
+        ChessPiece pieceAtPosition;
 
         // Top Moves
         int i = this.position.getRow() + 2;
         int j = this.position.getColumn() - 1;
         ChessPosition positionInQuestion = new ChessPosition(i, j);
-        ChessPiece pieceAtPosition = board.getPiece(positionInQuestion);
         if (onBoard(positionInQuestion)) {
+            pieceAtPosition = board.getPiece(positionInQuestion);
             if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
                 validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
@@ -42,8 +43,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         i = this.position.getRow() + 2;
         j = this.position.getColumn() + 1;
         positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
         if (onBoard(positionInQuestion)) {
+            pieceAtPosition = board.getPiece(positionInQuestion);
             if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
                 validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
@@ -54,8 +55,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         i = this.position.getRow() + 1;
         j = this.position.getColumn() + 2;
         positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
         if (onBoard(positionInQuestion)) {
+            pieceAtPosition = board.getPiece(positionInQuestion);
             if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
                 validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
@@ -64,8 +65,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         i = this.position.getRow() - 1;
         j = this.position.getColumn() + 2;
         positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
         if (onBoard(positionInQuestion)) {
+            pieceAtPosition = board.getPiece(positionInQuestion);
             if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
                 validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
@@ -75,8 +76,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         i = this.position.getRow() - 2;
         j = this.position.getColumn() + 1;
         positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
         if (onBoard(positionInQuestion)) {
+            pieceAtPosition = board.getPiece(positionInQuestion);
             if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
                 validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
@@ -85,8 +86,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         i = this.position.getRow() - 2;
         j = this.position.getColumn() - 1;
         positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
         if (onBoard(positionInQuestion)) {
+            pieceAtPosition = board.getPiece(positionInQuestion);
             if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
                 validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
@@ -96,8 +97,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         i = this.position.getRow() - 1;
         j = this.position.getColumn() - 2;
         positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
         if (onBoard(positionInQuestion)) {
+            pieceAtPosition = board.getPiece(positionInQuestion);
             if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
                 validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
@@ -106,8 +107,8 @@ public class KnightMovesCalculator implements PieceMovesCalculator {
         i = this.position.getRow() + 1;
         j = this.position.getColumn() - 2;
         positionInQuestion = new ChessPosition(i, j);
-        pieceAtPosition = board.getPiece(positionInQuestion);
         if (onBoard(positionInQuestion)) {
+            pieceAtPosition = board.getPiece(positionInQuestion);
             if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
                 validMoves.add(new ChessMove(this.position, positionInQuestion, null));
             }
