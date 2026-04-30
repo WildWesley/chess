@@ -1,46 +1,42 @@
 package chess;
 
+import java.sql.Array;
 import java.util.ArrayList;
 
 public class KingMovesCalculator implements PieceMovesCalculator {
-    // "Inheriting" from an interface is actually called "Implement" in Java
-    ChessPosition position;
-    ChessBoard board;
+    private final ChessBoard board;
+    private final ChessPosition position;
 
-    // For constructors, you don't declare a return type
-    public KingMovesCalculator(ChessPosition currentPosition, ChessBoard board) {
-        this.position = currentPosition;
+    public KingMovesCalculator(ChessBoard board, ChessPosition position) {
         this.board = board;
+        this.position = position;
+    }
+
+    public static boolean onBoard(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        return (1 <= row && row <= 8) && (1 <= col && col <= 8);
     }
 
     @Override
     public ArrayList<ChessMove> pieceMoves() {
-
-        ChessPiece currentPiece = board.getPiece(this.position);
         ArrayList<ChessMove> validMoves = new ArrayList<>();
-        for (int i=this.position.getRow() - 1; i <= this.position.getRow() + 1; i++) {
-            for (int j=this.position.getColumn() - 1; j <= this.position.getColumn() + 1; j++) {
-                // To start, I create a new position and grab the piece at that position
-                ChessPosition positionInQuestion = new ChessPosition(i, j);
-                if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                    ChessPiece pieceAtPosition = board.getPiece(positionInQuestion);
-                    if (this.position != positionInQuestion) {
-                        // Check if nothing at the position
-                        if (pieceAtPosition == null) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                        } else {
-                            if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                            }
-                        }
+        ChessPiece currentPiece = board.getPiece(position);
+        ChessPosition positionInQuestion;
+        ChessPiece pieceInQuestion;
+
+        for (int i = position.getRow() - 1; i <= position.getRow() + 1; i++) {
+            for (int j = position.getColumn() - 1; j <= position.getColumn() + 1; j++) {
+                positionInQuestion = new ChessPosition(i, j);
+                if (onBoard(positionInQuestion)) {
+                    pieceInQuestion = board.getPiece(positionInQuestion);
+                    if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                        validMoves.add(new ChessMove(position, positionInQuestion, null));
                     }
                 }
             }
         }
-        // Check edge of board and return possible moves
-        // Also make sure to use getPiece() to check if there is already a piece there
-        //     - if(moveLocationOnBoard() && (notPieceAtLocation() || pieceAtLocationOtherTeam()){...}
-        // Don't worry about putting the king in check with the moves
+
         return validMoves;
     }
 }

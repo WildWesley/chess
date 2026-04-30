@@ -3,219 +3,173 @@ package chess;
 import java.util.ArrayList;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
-    // "Inheriting" from an interface is actually called "Implement" in Java
-    ChessPosition position;
-    ChessBoard board;
+    private final ChessBoard board;
+    private final ChessPosition position;
 
-    // For constructors, you don't declare a return type
-    public PawnMovesCalculator(ChessPosition currentPosition, ChessBoard board) {
-        this.position = currentPosition;
+    public PawnMovesCalculator(ChessBoard board, ChessPosition position) {
         this.board = board;
+        this.position = position;
     }
 
-    private ArrayList<ChessPiece.PieceType> handlePromotions(ChessPiece currentPiece, ChessPosition positionInQuestion) {
-        ArrayList<ChessPiece.PieceType> validPromotions = new ArrayList<ChessPiece.PieceType>();
+    public static boolean onBoard(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        return (1 <= row && row <= 8) && (1 <= col && col <= 8);
+    }
+
+    private ArrayList<ChessMove> handlePromotions(ChessPosition positionInQuestion, ChessPiece currentPiece) {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+
+        // White Promotions
         if (currentPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             if (positionInQuestion.getRow() == 8) {
-                validPromotions.add(ChessPiece.PieceType.QUEEN);
-                validPromotions.add(ChessPiece.PieceType.ROOK);
-                validPromotions.add(ChessPiece.PieceType.KNIGHT);
-                validPromotions.add(ChessPiece.PieceType.BISHOP);
+                validMoves.add(new ChessMove(position, positionInQuestion, ChessPiece.PieceType.QUEEN));
+                validMoves.add(new ChessMove(position, positionInQuestion, ChessPiece.PieceType.ROOK));
+                validMoves.add(new ChessMove(position, positionInQuestion, ChessPiece.PieceType.BISHOP));
+                validMoves.add(new ChessMove(position, positionInQuestion, ChessPiece.PieceType.KNIGHT));
             }
         } else {
             if (positionInQuestion.getRow() == 1) {
-                validPromotions.add(ChessPiece.PieceType.QUEEN);
-                validPromotions.add(ChessPiece.PieceType.ROOK);
-                validPromotions.add(ChessPiece.PieceType.KNIGHT);
-                validPromotions.add(ChessPiece.PieceType.BISHOP);
+                validMoves.add(new ChessMove(position, positionInQuestion, ChessPiece.PieceType.QUEEN));
+                validMoves.add(new ChessMove(position, positionInQuestion, ChessPiece.PieceType.ROOK));
+                validMoves.add(new ChessMove(position, positionInQuestion, ChessPiece.PieceType.BISHOP));
+                validMoves.add(new ChessMove(position, positionInQuestion, ChessPiece.PieceType.KNIGHT));
             }
         }
 
-        return validPromotions;
+        return validMoves;
     }
 
     @Override
     public ArrayList<ChessMove> pieceMoves() {
-
-        ChessPiece currentPiece = board.getPiece(this.position);
         ArrayList<ChessMove> validMoves = new ArrayList<>();
-        ArrayList<ChessPiece.PieceType> validPromotions;
+        ChessPiece currentPiece = board.getPiece(position);
         ChessPosition positionInQuestion;
-        ChessPiece pieceAtPosition;
+        ChessPiece pieceInQuestion;
+        ArrayList<ChessMove> validPromotions = new ArrayList<>();
 
+        // WHITE MOVES
         if (currentPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            // WHITE MOVES
-            // One space in front
-            int i = this.position.getRow() + 1;
-            int j = this.position.getColumn();
-            positionInQuestion = new ChessPosition(i, j);
-            if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                pieceAtPosition = board.getPiece(positionInQuestion);
-                if (j <= 8 && pieceAtPosition == null) {
-                    validPromotions = handlePromotions(currentPiece, positionInQuestion);
+            // Forward
+            int i = position.getRow() + 1;
+            int j = position.getColumn();
+            positionInQuestion = new ChessPosition(i,j);
+            if (onBoard(positionInQuestion)) {
+                pieceInQuestion = board.getPiece(positionInQuestion);
+                if (pieceInQuestion == null) {
+                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
                     if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                    } else {
-                        for (ChessPiece.PieceType promotion : validPromotions) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, promotion));
+                        validMoves.add(new ChessMove(position, positionInQuestion, null));
+                        if (positionInQuestion.getRow() == 3) {
+                            i = position.getRow() + 2;
+                            j = position.getColumn();
+                            positionInQuestion = new ChessPosition(i,j);
+                            pieceInQuestion = board.getPiece(positionInQuestion);
+                            if (pieceInQuestion == null) {
+                                validMoves.add(new ChessMove(position, positionInQuestion, null));
+                            }
                         }
+                    } else {
+                        validMoves.addAll(validPromotions);
+                        validPromotions.clear();
                     }
                 }
             }
 
-            // Two spaces in front
-            // Check that first space is empty first
-            i = this.position.getRow() + 1;
-            j = this.position.getColumn();
-            positionInQuestion = new ChessPosition(i, j);
-            if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                pieceAtPosition = board.getPiece(positionInQuestion);
-                if (i == 3 && pieceAtPosition == null) {
-                    i = this.position.getRow() + 2;
-                    positionInQuestion = new ChessPosition(i, j);
-                    pieceAtPosition = board.getPiece(positionInQuestion);
-                    if (pieceAtPosition == null) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            // Attack
+            i = position.getRow() + 1;
+            j = position.getColumn() - 1;
+            positionInQuestion = new ChessPosition(i,j);
+            if (onBoard(positionInQuestion)) {
+                pieceInQuestion = board.getPiece(positionInQuestion);
+                if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
+                    if (validPromotions.isEmpty()) {
+                        validMoves.add(new ChessMove(position, positionInQuestion, null));
+                    } else {
+                        validMoves.addAll(validPromotions);
+                        validPromotions.clear();
                     }
                 }
             }
 
-            // Taking to top-left
-            i = this.position.getRow() + 1;
-            j = this.position.getColumn() - 1;
-            positionInQuestion = new ChessPosition(i, j);
-            if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                pieceAtPosition = board.getPiece(positionInQuestion);
-                // We check that the position of i is 4, because that's the only valid 2-move row for white
-                if (i <= 8 && j >= 1) {
-                    // Has to be a piece there
-                    if (pieceAtPosition != null) {
-                        // Has to be other team's piece
-                        if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                            validPromotions = handlePromotions(currentPiece, positionInQuestion);
+            i = position.getRow() + 1;
+            j = position.getColumn() + 1;
+            positionInQuestion = new ChessPosition(i,j);
+            if (onBoard(positionInQuestion)) {
+                pieceInQuestion = board.getPiece(positionInQuestion);
+                if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
                     if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+                        validMoves.add(new ChessMove(position, positionInQuestion, null));
                     } else {
-                        for (ChessPiece.PieceType promotion : validPromotions) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, promotion));
-                        }
-                    }
-                        }
+                        validMoves.addAll(validPromotions);
+                        validPromotions.clear();
                     }
                 }
             }
 
-            // Taking to top-right
-            i = this.position.getRow() + 1;
-            j = this.position.getColumn() + 1;
-            positionInQuestion = new ChessPosition(i, j);
-            if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                pieceAtPosition = board.getPiece(positionInQuestion);
-                // We check that the position of i is 4, because that's the only valid 2-move row for white
-                if (i <= 8 && j <= 8) {
-                    // Has to be a piece there
-                    if (pieceAtPosition != null) {
-                        // Has to be other team's piece
-                        if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                            validPromotions = handlePromotions(currentPiece, positionInQuestion);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                    } else {
-                        for (ChessPiece.PieceType promotion : validPromotions) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, promotion));
-                        }
-                    }
-                        }
-                    }
-                }
-            }
         } else {
-            // BLACK MOVES
-            // One space in front
-            int i = this.position.getRow() - 1;
-            int j = this.position.getColumn();
-            positionInQuestion = new ChessPosition(i, j);
-            if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                pieceAtPosition = board.getPiece(positionInQuestion);
-                if (j >= 1 && pieceAtPosition == null) {
-                    validPromotions = handlePromotions(currentPiece, positionInQuestion);
+            // Forward
+            int i = position.getRow() - 1;
+            int j = position.getColumn();
+            positionInQuestion = new ChessPosition(i,j);
+            if (onBoard(positionInQuestion)) {
+                pieceInQuestion = board.getPiece(positionInQuestion);
+                if (pieceInQuestion == null) {
+                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
                     if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                    } else {
-                        for (ChessPiece.PieceType promotion : validPromotions) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, promotion));
+                        validMoves.add(new ChessMove(position, positionInQuestion, null));
+                        if (positionInQuestion.getRow() == 6) {
+                            i = position.getRow() - 2;
+                            j = position.getColumn();
+                            positionInQuestion = new ChessPosition(i,j);
+                            pieceInQuestion = board.getPiece(positionInQuestion);
+                            if (pieceInQuestion == null) {
+                                validMoves.add(new ChessMove(position, positionInQuestion, null));
+                            }
                         }
+                    } else {
+                        validMoves.addAll(validPromotions);
+                        validPromotions.clear();
                     }
                 }
             }
 
-            // Two spaces in front
-            // Check that first space is empty first
-            i = this.position.getRow() - 1;
-            j = this.position.getColumn();
-            positionInQuestion = new ChessPosition(i, j);
-            if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                pieceAtPosition = board.getPiece(positionInQuestion);
-                if (i == 6 && pieceAtPosition == null) {
-                    i = this.position.getRow() - 2;
-                    positionInQuestion = new ChessPosition(i, j);
-                    pieceAtPosition = board.getPiece(positionInQuestion);
-                    if (pieceAtPosition == null) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            // Attack
+            i = position.getRow() - 1;
+            j = position.getColumn() - 1;
+            positionInQuestion = new ChessPosition(i,j);
+            if (onBoard(positionInQuestion)) {
+                pieceInQuestion = board.getPiece(positionInQuestion);
+                if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
+                    if (validPromotions.isEmpty()) {
+                        validMoves.add(new ChessMove(position, positionInQuestion, null));
+                    } else {
+                        validMoves.addAll(validPromotions);
+                        validPromotions.clear();
                     }
                 }
             }
 
-            // Taking to bottom-left
-            i = this.position.getRow() - 1;
-            j = this.position.getColumn() - 1;
-            positionInQuestion = new ChessPosition(i, j);
-            if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                pieceAtPosition = board.getPiece(positionInQuestion);
-                // We check that the position of i is 4, because that's the only valid 2-move row for white
-                if (i >= 1 && j >= 1) {
-                    // Has to be a piece there
-                    if (pieceAtPosition != null) {
-                        // Has to be other team's piece
-                        if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                            validPromotions = handlePromotions(currentPiece, positionInQuestion);
+            i = position.getRow() - 1;
+            j = position.getColumn() + 1;
+            positionInQuestion = new ChessPosition(i,j);
+            if (onBoard(positionInQuestion)) {
+                pieceInQuestion = board.getPiece(positionInQuestion);
+                if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
                     if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+                        validMoves.add(new ChessMove(position, positionInQuestion, null));
                     } else {
-                        for (ChessPiece.PieceType promotion : validPromotions) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, promotion));
-                        }
-                    }
-                        }
-                    }
-                }
-            }
-
-            // Taking to bottom-right
-            i = this.position.getRow() - 1;
-            j = this.position.getColumn() + 1;
-            positionInQuestion = new ChessPosition(i, j);
-            if (KnightMovesCalculator.onBoard(positionInQuestion)) {
-                pieceAtPosition = board.getPiece(positionInQuestion);
-                // We check that the position of i is 4, because that's the only valid 2-move row for white
-                if (i >= 1 && j <= 8) {
-                    // Has to be a piece there
-                    if (pieceAtPosition != null) {
-                        // Has to be other team's piece
-                        if (pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                            validPromotions = handlePromotions(currentPiece, positionInQuestion);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(this.position, positionInQuestion, null));
-                    } else {
-                        for (ChessPiece.PieceType promotion : validPromotions) {
-                            validMoves.add(new ChessMove(this.position, positionInQuestion, promotion));
-                        }
-                    }
-                        }
+                        validMoves.addAll(validPromotions);
+                        validPromotions.clear();
                     }
                 }
             }
         }
+
         return validMoves;
     }
 }

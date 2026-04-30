@@ -36,7 +36,10 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return String.format("[%d,%d]", row, col);
+        return "ChessPosition{" +
+                "row=" + row +
+                ", col=" + col +
+                '}';
     }
 
     @Override
@@ -51,6 +54,4 @@ public class ChessPosition {
     public int hashCode() {
         return Objects.hash(getRow(), col);
     }
-
-
 }

@@ -2,7 +2,6 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -55,31 +54,40 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        ChessPiece currentPiece = board.getPiece(myPosition);
         PieceMovesCalculator calculator;
-        ChessPiece piece = board.getPiece(myPosition);
-        if (piece.getPieceType() == PieceType.BISHOP) {
-            calculator = new BishopMovesCalculator(myPosition, board);
-        } else if (piece.getPieceType() == PieceType.ROOK) {
-            calculator = new RookMovesCalculator(myPosition, board);
-        } else if (piece.getPieceType() == PieceType.QUEEN) {
-            calculator = new QueenMovesCalculator(myPosition, board);
-        } else if (piece.getPieceType() == PieceType.KING) {
-            calculator = new KingMovesCalculator(myPosition, board);
-        } else if (piece.getPieceType() == PieceType.KNIGHT) {
-            calculator = new KnightMovesCalculator(myPosition, board);
-        } else if (piece.getPieceType() == PieceType.PAWN) {
-            calculator = new PawnMovesCalculator(myPosition, board);
+
+        if (currentPiece.getPieceType() == PieceType.KING) {
+            calculator = new KingMovesCalculator(board, myPosition);
+        }
+        else if (currentPiece.getPieceType() == PieceType.BISHOP) {
+            calculator = new BishopMovesCalculator(board, myPosition);
+        }
+        else if (currentPiece.getPieceType() == PieceType.ROOK) {
+            calculator = new RookMovesCalculator(board, myPosition);
+        }
+        else if (currentPiece.getPieceType() == PieceType.QUEEN) {
+            calculator = new QueenMovesCalculator(board, myPosition);
+        }
+        else if (currentPiece.getPieceType() == PieceType.KNIGHT) {
+            calculator = new KnightMovesCalculator(board, myPosition);
+        }
+        else if (currentPiece.getPieceType() == PieceType.PAWN) {
+            calculator = new PawnMovesCalculator(board, myPosition);
         }
         else {
             return new ArrayList<ChessMove>();
         }
+
         return calculator.pieceMoves();
     }
 
     @Override
     public String toString() {
-        // If you include a string in the addition, it will automatically cast to a string
-        return type + " " + pieceColor;
+        return "ChessPiece{" +
+                "pieceColor=" + pieceColor +
+                ", type=" + type +
+                '}';
     }
 
     @Override

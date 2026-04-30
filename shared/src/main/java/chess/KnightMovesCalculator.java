@@ -2,115 +2,109 @@ package chess;
 
 import java.util.ArrayList;
 
-public class KnightMovesCalculator implements PieceMovesCalculator {
-    // "Inheriting" from an interface is actually called "Implement" in Java
-    ChessPosition position;
-    ChessBoard board;
+public class KnightMovesCalculator implements PieceMovesCalculator{
+    private final ChessBoard board;
+    private final ChessPosition position;
 
-    // For constructors, you don't declare a return type
-    public KnightMovesCalculator(ChessPosition currentPosition, ChessBoard board) {
-        this.position = currentPosition;
+    public KnightMovesCalculator(ChessBoard board, ChessPosition position) {
         this.board = board;
+        this.position = position;
     }
 
-    // TODO: Ask why this is static?
-    // Checks if a position is on the board
-    public static boolean onBoard(ChessPosition positionInQuestion) {
-        int i = positionInQuestion.getRow();
-        int j = positionInQuestion.getColumn();
-        return (1 <= i && i <= 8) && (1 <= j && j <= 8);
+    public static boolean onBoard(ChessPosition position) {
+        int row = position.getRow();
+        int col = position.getColumn();
+        return (1 <= row && row <= 8) && (1 <= col && col <= 8);
     }
 
     @Override
     public ArrayList<ChessMove> pieceMoves() {
-
-        ChessPiece currentPiece = board.getPiece(this.position);
         ArrayList<ChessMove> validMoves = new ArrayList<>();
-        ArrayList<ChessPiece.PieceType> validPromotions;
-        ChessPiece pieceAtPosition;
+        ChessPiece currentPiece = board.getPiece(position);
+        ChessPosition positionInQuestion;
+        ChessPiece pieceInQuestion;
 
-        // Top Moves
-        int i = this.position.getRow() + 2;
-        int j = this.position.getColumn() - 1;
-        ChessPosition positionInQuestion = new ChessPosition(i, j);
+        // Up
+        int i = position.getRow() + 2;
+        int j = position.getColumn() - 1;
+        positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
-            pieceAtPosition = board.getPiece(positionInQuestion);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(position, positionInQuestion, null));
             }
         }
 
-        i = this.position.getRow() + 2;
-        j = this.position.getColumn() + 1;
-        positionInQuestion = new ChessPosition(i, j);
+        i = position.getRow() + 2;
+        j = position.getColumn() + 1;
+        positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
-            pieceAtPosition = board.getPiece(positionInQuestion);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(position, positionInQuestion, null));
             }
         }
 
-
-        // Right Moves
-        i = this.position.getRow() + 1;
-        j = this.position.getColumn() + 2;
-        positionInQuestion = new ChessPosition(i, j);
+        // Right
+        i = position.getRow() + 1;
+        j = position.getColumn() + 2;
+        positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
-            pieceAtPosition = board.getPiece(positionInQuestion);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(position, positionInQuestion, null));
             }
         }
 
-        i = this.position.getRow() - 1;
-        j = this.position.getColumn() + 2;
-        positionInQuestion = new ChessPosition(i, j);
+        i = position.getRow() - 1;
+        j = position.getColumn() + 2;
+        positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
-            pieceAtPosition = board.getPiece(positionInQuestion);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(position, positionInQuestion, null));
             }
         }
 
-        // Bottom Moves
-        i = this.position.getRow() - 2;
-        j = this.position.getColumn() + 1;
-        positionInQuestion = new ChessPosition(i, j);
+        // Down
+        i = position.getRow() - 2;
+        j = position.getColumn() + 1;
+        positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
-            pieceAtPosition = board.getPiece(positionInQuestion);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(position, positionInQuestion, null));
             }
         }
 
-        i = this.position.getRow() - 2;
-        j = this.position.getColumn() - 1;
-        positionInQuestion = new ChessPosition(i, j);
+        i = position.getRow() - 2;
+        j = position.getColumn() - 1;
+        positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
-            pieceAtPosition = board.getPiece(positionInQuestion);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(position, positionInQuestion, null));
             }
         }
 
-        // Left Moves
-        i = this.position.getRow() - 1;
-        j = this.position.getColumn() - 2;
-        positionInQuestion = new ChessPosition(i, j);
+        // Left
+        i = position.getRow() - 1;
+        j = position.getColumn() - 2;
+        positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
-            pieceAtPosition = board.getPiece(positionInQuestion);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(position, positionInQuestion, null));
             }
         }
 
-        i = this.position.getRow() + 1;
-        j = this.position.getColumn() - 2;
-        positionInQuestion = new ChessPosition(i, j);
+        i = position.getRow() + 1;
+        j = position.getColumn() - 2;
+        positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
-            pieceAtPosition = board.getPiece(positionInQuestion);
-            if (pieceAtPosition == null || pieceAtPosition.getTeamColor() != currentPiece.getTeamColor()) {
-                validMoves.add(new ChessMove(this.position, positionInQuestion, null));
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null || pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validMoves.add(new ChessMove(position, positionInQuestion, null));
             }
         }
 

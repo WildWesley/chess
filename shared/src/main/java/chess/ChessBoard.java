@@ -10,10 +10,10 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-
     ChessPiece[][] squares = new ChessPiece[8][8];
+
     public ChessBoard() {
-        
+
     }
 
     /**
@@ -37,9 +37,9 @@ public class ChessBoard {
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
-    private void addPieceAtCoordinate(int row, int col, ChessPiece piece) {
-        ChessPosition addPosition = new ChessPosition(row, col);
-        addPiece(addPosition, piece);
+    private void addPieceAtCoordinates(int row, int col, ChessPiece piece) {
+        ChessPosition position = new ChessPosition(row,col);
+        addPiece(position, piece);
     }
 
     /**
@@ -47,75 +47,80 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
+
+        squares = new ChessPiece[8][8];
+
         // WHITE PIECES
-        // Place Pawns
+        // Pawns
         ChessPiece whitePawn = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
-        addPieceAtCoordinate(2, 1, whitePawn);
-        addPieceAtCoordinate(2, 2, whitePawn);
-        addPieceAtCoordinate(2, 3, whitePawn);
-        addPieceAtCoordinate(2, 4, whitePawn);
-        addPieceAtCoordinate(2, 5, whitePawn);
-        addPieceAtCoordinate(2, 6, whitePawn);
-        addPieceAtCoordinate(2, 7, whitePawn);
-        addPieceAtCoordinate(2, 8, whitePawn);
+        addPieceAtCoordinates(2, 1, whitePawn);
+        addPieceAtCoordinates(2, 2, whitePawn);
+        addPieceAtCoordinates(2, 3, whitePawn);
+        addPieceAtCoordinates(2, 4, whitePawn);
+        addPieceAtCoordinates(2, 5, whitePawn);
+        addPieceAtCoordinates(2, 6, whitePawn);
+        addPieceAtCoordinates(2, 7, whitePawn);
+        addPieceAtCoordinates(2, 8, whitePawn);
 
-        // Place King
+        // King
         ChessPiece whiteKing = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING);
-        addPieceAtCoordinate(1, 5, whiteKing);
+        addPieceAtCoordinates(1, 5, whiteKing);
 
-        // Place Queen
+        // Queen
         ChessPiece whiteQueen = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN);
-        addPieceAtCoordinate(1, 4, whiteQueen);
+        addPieceAtCoordinates(1, 4, whiteQueen);
 
-        // Place Bishops
+        // Bishops
         ChessPiece whiteBishop = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP);
-        addPieceAtCoordinate(1, 6, whiteBishop);
-        addPieceAtCoordinate(1, 3, whiteBishop);
+        addPieceAtCoordinates(1, 6, whiteBishop);
+        addPieceAtCoordinates(1, 3, whiteBishop);
 
-        // Place Knights
+        // Knights
         ChessPiece whiteKnight = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT);
-        addPieceAtCoordinate(1, 7, whiteKnight);
-        addPieceAtCoordinate(1, 2, whiteKnight);
+        addPieceAtCoordinates(1, 7, whiteKnight);
+        addPieceAtCoordinates(1, 2, whiteKnight);
 
-        // Place Rooks
+        // Rooks
         ChessPiece whiteRook = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
-        addPieceAtCoordinate(1, 8, whiteRook);
-        addPieceAtCoordinate(1, 1, whiteRook);
+        addPieceAtCoordinates(1, 8, whiteRook);
+        addPieceAtCoordinates(1, 1, whiteRook);
+
 
         // BLACK PIECES
-        // Place Pawns
+        // Pawns
         ChessPiece blackPawn = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
-        addPieceAtCoordinate(7, 1, blackPawn);
-        addPieceAtCoordinate(7, 2, blackPawn);
-        addPieceAtCoordinate(7, 3, blackPawn);
-        addPieceAtCoordinate(7, 4, blackPawn);
-        addPieceAtCoordinate(7, 5, blackPawn);
-        addPieceAtCoordinate(7, 6, blackPawn);
-        addPieceAtCoordinate(7, 7, blackPawn);
-        addPieceAtCoordinate(7, 8, blackPawn);
+        addPieceAtCoordinates(7, 1, blackPawn);
+        addPieceAtCoordinates(7, 2, blackPawn);
+        addPieceAtCoordinates(7, 3, blackPawn);
+        addPieceAtCoordinates(7, 4, blackPawn);
+        addPieceAtCoordinates(7, 5, blackPawn);
+        addPieceAtCoordinates(7, 6, blackPawn);
+        addPieceAtCoordinates(7, 7, blackPawn);
+        addPieceAtCoordinates(7, 8, blackPawn);
 
-        // Place King
+        // King
         ChessPiece blackKing = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING);
-        addPieceAtCoordinate(8, 5, blackKing);
+        addPieceAtCoordinates(8, 5, blackKing);
 
-        // Place Queen
+        // Queen
         ChessPiece blackQueen = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN);
-        addPieceAtCoordinate(8, 4, blackQueen);
+        addPieceAtCoordinates(8, 4, blackQueen);
 
-        // Place Bishops
+        // Bishops
         ChessPiece blackBishop = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
-        addPieceAtCoordinate(8, 6, blackBishop);
-        addPieceAtCoordinate(8, 3, blackBishop);
+        addPieceAtCoordinates(8, 6, blackBishop);
+        addPieceAtCoordinates(8, 3, blackBishop);
 
-        // Place Knights
+        // Knights
         ChessPiece blackKnight = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
-        addPieceAtCoordinate(8, 7, blackKnight);
-        addPieceAtCoordinate(8, 2, blackKnight);
+        addPieceAtCoordinates(8, 7, blackKnight);
+        addPieceAtCoordinates(8, 2, blackKnight);
 
-        // Place Rooks
+        // Rooks
         ChessPiece blackRook = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
-        addPieceAtCoordinate(8, 8, blackRook);
-        addPieceAtCoordinate(8, 1, blackRook);
+        addPieceAtCoordinates(8, 8, blackRook);
+        addPieceAtCoordinates(8, 1, blackRook);
+
     }
 
     @Override
