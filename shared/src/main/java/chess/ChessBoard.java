@@ -47,8 +47,6 @@ public class ChessBoard {
      * (How the game of chess normally starts)
      */
     public void resetBoard() {
-        ChessPosition addPosition = new ChessPosition(2, 1);
-
         // WHITE PIECES
         // Place Pawns
         ChessPiece whitePawn = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
