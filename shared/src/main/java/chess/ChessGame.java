@@ -95,6 +95,12 @@ public class ChessGame {
         }
     }
 
+    /**
+     * This function moves a piece regardless of whether it is valid
+     *
+     * @param move The move that the user wants to test
+     * @return The piece that was at the location that the original piece now resides
+     */
     public ChessPiece movePiece(ChessMove move) {
         // Makes move regardless of whether the move is valid
         ChessPiece originalPiece = board.getPiece(move.getStartPosition());
@@ -246,7 +252,7 @@ public class ChessGame {
      * @param teamColor which team to check for checkmate
      * @return True if the specified team is in checkmate
      */
-   public boolean isInCheckmate(TeamColor teamColor) {
+    public boolean isInCheckmate(TeamColor teamColor) {
        if (isInCheck(teamColor)) {
            ArrayList<ChessPosition> whitePositions;
            ArrayList<ChessPosition> blackPositions;
