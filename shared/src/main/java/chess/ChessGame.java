@@ -75,7 +75,7 @@ public class ChessGame {
             // Loop through all possible valid moves
             for (ChessMove move : possibleMoves) {
                 pieceTaken = movePiece(move);
-                if (!isInCheck(teamTurn)) {
+                if (!isInCheck(originalPiece.getTeamColor())) {
                     validMoves.add(move);
                 }
 
