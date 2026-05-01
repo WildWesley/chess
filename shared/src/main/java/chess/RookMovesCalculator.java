@@ -11,7 +11,7 @@ public class RookMovesCalculator implements PieceMovesCalculator{
         this.board = board;
         this.position = position;
     }
-
+    
     @Override
     public ArrayList<ChessMove> pieceMoves() {
         ArrayList<ChessMove> validMoves = new ArrayList<>();

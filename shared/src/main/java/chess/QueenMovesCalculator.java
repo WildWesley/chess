@@ -19,7 +19,6 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
         ChessPosition positionInQuestion;
         ChessPiece pieceInQuestion;
 
-
         // ROOK MOVES
         // Up
         int i = position.getRow() + 1;
