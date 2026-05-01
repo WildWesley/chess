@@ -163,7 +163,15 @@ public class ChessGame {
         // ArrayList<Integer> list = new ArrayList<>(java.util.Arrays.asList(1, 2));
         return new ArrayList<ArrayList<ChessPosition>>(java.util.Arrays.asList(whitePositions, blackPositions));
     }
-    
+
+    /**
+     * This moves a piece back to its original location after a new location has been tested
+     *
+     * @param originalPiece Piece that was moved
+     * @param pieceTaken Piece at location where originalPiece was moved
+     * @param startPosition Original piece's original location
+     * @param endPosition Original piece's new location
+     */
     private void resetPositions(ChessPiece originalPiece, ChessPiece pieceTaken,
                                 ChessPosition startPosition, ChessPosition endPosition) {
         board.addPiece(startPosition, originalPiece);
