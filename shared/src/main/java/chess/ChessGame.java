@@ -18,6 +18,7 @@ public class ChessGame {
     public ChessGame() {
         this.board = new ChessBoard();
         board.resetBoard();
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -53,6 +54,7 @@ public class ChessGame {
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece originalPiece = board.getPiece(startPosition);
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         if (originalPiece == null) {return null;}
         else {
@@ -68,13 +70,13 @@ public class ChessGame {
 
             // TODO: Ask about addAll with collection and ArrayList
             // Grab all possible valid moves
-            validMoves.addAll(originalPiece.pieceMoves(board, startPosition));
+            possibleMoves.addAll(originalPiece.pieceMoves(board, startPosition));
 
             // Loop through all possible valid moves
-            for (ChessMove move : validMoves) {
+            for (ChessMove move : possibleMoves) {
                 pieceTaken = movePiece(move);
-                if (isInCheck(teamTurn)) {
-                    validMoves.remove(move);
+                if (!isInCheck(teamTurn)) {
+                    validMoves.add(move);
                 }
 
                 // Reset board
@@ -97,7 +99,11 @@ public class ChessGame {
         // Makes move regardless of whether the move is valid
         ChessPiece originalPiece = board.getPiece(move.getStartPosition());
         ChessPiece pieceTaken = board.getPiece(move.getEndPosition());
+        if (move.getPromotionPiece() != null) {
+            originalPiece = new ChessPiece(originalPiece.getTeamColor(), move.getPromotionPiece());
+        }
         board.addPiece(move.getEndPosition(), originalPiece);
+        board.addPiece(move.getStartPosition(), null);
         return pieceTaken;
     }
 
@@ -111,7 +117,7 @@ public class ChessGame {
         ChessPiece originalPiece = board.getPiece(move.getStartPosition());
         ChessPiece pieceTaken;
         ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) validMoves(move.getStartPosition());
-        if (validMoves == null) {
+        if (validMoves == null || originalPiece.getTeamColor() != teamTurn) {
             throw new InvalidMoveException();
         }
         if (validMoves.contains(move)) {
