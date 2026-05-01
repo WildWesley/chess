@@ -65,46 +65,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return validMoves;
     }
 
-    private ArrayList<ChessMove> whiteAttack() {
-        ArrayList<ChessMove> validMoves = new ArrayList<>();
-        ArrayList<ChessMove> validPromotions;
-        ChessPiece currentPiece = board.getPiece(new ChessPosition(position.getRow(), position.getColumn()));
-        ChessPiece pieceInQuestion;
-        int i = position.getRow() + 1;
-        int j = position.getColumn() - 1;
-        ChessPosition positionInQuestion = new ChessPosition(i,j);
-        if (onBoard(positionInQuestion)) {
-            pieceInQuestion = board.getPiece(positionInQuestion);
-            if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
-                validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                if (validPromotions.isEmpty()) {
-                    validMoves.add(new ChessMove(position, positionInQuestion, null));
-                } else {
-                    validMoves.addAll(validPromotions);
-                    validPromotions.clear();
-                }
-            }
-        }
-
-        i = position.getRow() + 1;
-        j = position.getColumn() + 1;
-        positionInQuestion = new ChessPosition(i,j);
-        if (onBoard(positionInQuestion)) {
-            pieceInQuestion = board.getPiece(positionInQuestion);
-            if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
-                validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                if (validPromotions.isEmpty()) {
-                    validMoves.add(new ChessMove(position, positionInQuestion, null));
-                } else {
-                    validMoves.addAll(validPromotions);
-                    validPromotions.clear();
-                }
-            }
-        }
-
-        return validMoves;
-    }
-
     private ArrayList<ChessMove> blackForward() {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         ArrayList<ChessMove> validPromotions = new ArrayList<>();

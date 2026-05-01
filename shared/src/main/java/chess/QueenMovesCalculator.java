@@ -27,7 +27,7 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
         // Up-Right
         BishopMovesCalculator BishopCalculator = new BishopMovesCalculator(board, position);
         validMoves.addAll(BishopCalculator.pieceMoves());
-        
+
         return validMoves;
     }
 }
