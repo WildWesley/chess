@@ -35,6 +35,148 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return validMoves;
     }
 
+    private ArrayList<ChessMove> whiteForward() {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        ChessPiece currentPiece = board.getPiece(new ChessPosition(position.getRow(), position.getColumn()));
+        int i = position.getRow() + 1;
+        int j = position.getColumn();
+        ChessPosition positionInQuestion = new ChessPosition(i,j);
+        if (onBoard(positionInQuestion)) {
+            ChessPiece pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null) {
+                ArrayList<ChessMove> validPromotions = handlePromotions(positionInQuestion, currentPiece);
+                if (validPromotions.isEmpty()) {
+                    validMoves.add(new ChessMove(position, positionInQuestion, null));
+                    if (positionInQuestion.getRow() == 3) {
+                        i = position.getRow() + 2;
+                        j = position.getColumn();
+                        positionInQuestion = new ChessPosition(i, j);
+                        pieceInQuestion = board.getPiece(positionInQuestion);
+                        if (pieceInQuestion == null) {
+                            validMoves.add(new ChessMove(position, positionInQuestion, null));
+                        }
+                    }
+                } else {
+                    validMoves.addAll(validPromotions);
+                    validPromotions.clear();
+                }
+            }
+        }
+        return validMoves;
+    }
+
+    private ArrayList<ChessMove> whiteAttack() {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        ArrayList<ChessMove> validPromotions;
+        ChessPiece currentPiece = board.getPiece(new ChessPosition(position.getRow(), position.getColumn()));
+        ChessPiece pieceInQuestion;
+        int i = position.getRow() + 1;
+        int j = position.getColumn() - 1;
+        ChessPosition positionInQuestion = new ChessPosition(i,j);
+        if (onBoard(positionInQuestion)) {
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validPromotions = handlePromotions(positionInQuestion, currentPiece);
+                if (validPromotions.isEmpty()) {
+                    validMoves.add(new ChessMove(position, positionInQuestion, null));
+                } else {
+                    validMoves.addAll(validPromotions);
+                    validPromotions.clear();
+                }
+            }
+        }
+
+        i = position.getRow() + 1;
+        j = position.getColumn() + 1;
+        positionInQuestion = new ChessPosition(i,j);
+        if (onBoard(positionInQuestion)) {
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validPromotions = handlePromotions(positionInQuestion, currentPiece);
+                if (validPromotions.isEmpty()) {
+                    validMoves.add(new ChessMove(position, positionInQuestion, null));
+                } else {
+                    validMoves.addAll(validPromotions);
+                    validPromotions.clear();
+                }
+            }
+        }
+
+        return validMoves;
+    }
+
+    private ArrayList<ChessMove> blackForward() {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        ArrayList<ChessMove> validPromotions = new ArrayList<>();
+        ChessPiece currentPiece = board.getPiece(new ChessPosition(position.getRow(), position.getColumn()));
+        ChessPiece pieceInQuestion;
+        int i = position.getRow() - 1;
+        int j = position.getColumn();
+        ChessPosition positionInQuestion = new ChessPosition(i,j);
+        if (onBoard(positionInQuestion)) {
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion == null) {
+                validPromotions = handlePromotions(positionInQuestion, currentPiece);
+                if (validPromotions.isEmpty()) {
+                    validMoves.add(new ChessMove(position, positionInQuestion, null));
+                    if (positionInQuestion.getRow() == 6) {
+                        i = position.getRow() - 2;
+                        j = position.getColumn();
+                        positionInQuestion = new ChessPosition(i,j);
+                        pieceInQuestion = board.getPiece(positionInQuestion);
+                        if (pieceInQuestion == null) {
+                            validMoves.add(new ChessMove(position, positionInQuestion, null));
+                        }
+                    }
+                } else {
+                    validMoves.addAll(validPromotions);
+                    validPromotions.clear();
+                }
+            }
+        }
+        return validMoves;
+    }
+
+    private ArrayList<ChessMove> blackAttack() {
+        ArrayList<ChessMove> validMoves = new ArrayList<>();
+        ArrayList<ChessMove> validPromotions;
+        ChessPiece currentPiece = board.getPiece(new ChessPosition(position.getRow(), position.getColumn()));
+        ChessPiece pieceInQuestion;
+        int j = position.getColumn() - 1;
+        int i = position.getRow() - 1;
+        ChessPosition positionInQuestion = new ChessPosition(i,j);
+        if (onBoard(positionInQuestion)) {
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validPromotions = handlePromotions(positionInQuestion, currentPiece);
+                if (validPromotions.isEmpty()) {
+                    validMoves.add(new ChessMove(position, positionInQuestion, null));
+                } else {
+                    validMoves.addAll(validPromotions);
+                    validPromotions.clear();
+                }
+            }
+        }
+
+        i = position.getRow() - 1;
+        j = position.getColumn() + 1;
+        positionInQuestion = new ChessPosition(i,j);
+        if (onBoard(positionInQuestion)) {
+            pieceInQuestion = board.getPiece(positionInQuestion);
+            if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
+                validPromotions = handlePromotions(positionInQuestion, currentPiece);
+                if (validPromotions.isEmpty()) {
+                    validMoves.add(new ChessMove(position, positionInQuestion, null));
+                } else {
+                    validMoves.addAll(validPromotions);
+                    validPromotions.clear();
+                }
+            }
+        }
+
+        return validMoves;
+    }
+
     @Override
     public ArrayList<ChessMove> pieceMoves() {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
@@ -46,123 +188,17 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         // WHITE MOVES
         if (currentPiece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             // Forward
-            int i = position.getRow() + 1;
-            int j = position.getColumn();
-            positionInQuestion = new ChessPosition(i,j);
-            if (onBoard(positionInQuestion)) {
-                pieceInQuestion = board.getPiece(positionInQuestion);
-                if (pieceInQuestion == null) {
-                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(position, positionInQuestion, null));
-                        if (positionInQuestion.getRow() == 3) {
-                            i = position.getRow() + 2;
-                            j = position.getColumn();
-                            positionInQuestion = new ChessPosition(i,j);
-                            pieceInQuestion = board.getPiece(positionInQuestion);
-                            if (pieceInQuestion == null) {
-                                validMoves.add(new ChessMove(position, positionInQuestion, null));
-                            }
-                        }
-                    } else {
-                        validMoves.addAll(validPromotions);
-                        validPromotions.clear();
-                    }
-                }
-            }
+            validMoves.addAll(whiteForward());
 
             // Attack
-            i = position.getRow() + 1;
-            j = position.getColumn() - 1;
-            positionInQuestion = new ChessPosition(i,j);
-            if (onBoard(positionInQuestion)) {
-                pieceInQuestion = board.getPiece(positionInQuestion);
-                if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
-                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(position, positionInQuestion, null));
-                    } else {
-                        validMoves.addAll(validPromotions);
-                        validPromotions.clear();
-                    }
-                }
-            }
-
-            i = position.getRow() + 1;
-            j = position.getColumn() + 1;
-            positionInQuestion = new ChessPosition(i,j);
-            if (onBoard(positionInQuestion)) {
-                pieceInQuestion = board.getPiece(positionInQuestion);
-                if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
-                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(position, positionInQuestion, null));
-                    } else {
-                        validMoves.addAll(validPromotions);
-                        validPromotions.clear();
-                    }
-                }
-            }
+            validMoves.addAll(whiteAttack());
 
         } else {
             // Forward
-            int i = position.getRow() - 1;
-            int j = position.getColumn();
-            positionInQuestion = new ChessPosition(i,j);
-            if (onBoard(positionInQuestion)) {
-                pieceInQuestion = board.getPiece(positionInQuestion);
-                if (pieceInQuestion == null) {
-                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(position, positionInQuestion, null));
-                        if (positionInQuestion.getRow() == 6) {
-                            i = position.getRow() - 2;
-                            j = position.getColumn();
-                            positionInQuestion = new ChessPosition(i,j);
-                            pieceInQuestion = board.getPiece(positionInQuestion);
-                            if (pieceInQuestion == null) {
-                                validMoves.add(new ChessMove(position, positionInQuestion, null));
-                            }
-                        }
-                    } else {
-                        validMoves.addAll(validPromotions);
-                        validPromotions.clear();
-                    }
-                }
-            }
+            validMoves.addAll(blackForward());
 
             // Attack
-            i = position.getRow() - 1;
-            j = position.getColumn() - 1;
-            positionInQuestion = new ChessPosition(i,j);
-            if (onBoard(positionInQuestion)) {
-                pieceInQuestion = board.getPiece(positionInQuestion);
-                if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
-                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(position, positionInQuestion, null));
-                    } else {
-                        validMoves.addAll(validPromotions);
-                        validPromotions.clear();
-                    }
-                }
-            }
-
-            i = position.getRow() - 1;
-            j = position.getColumn() + 1;
-            positionInQuestion = new ChessPosition(i,j);
-            if (onBoard(positionInQuestion)) {
-                pieceInQuestion = board.getPiece(positionInQuestion);
-                if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
-                    validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                    if (validPromotions.isEmpty()) {
-                        validMoves.add(new ChessMove(position, positionInQuestion, null));
-                    } else {
-                        validMoves.addAll(validPromotions);
-                        validPromotions.clear();
-                    }
-                }
-            }
+            validMoves.addAll(blackAttack());
         }
 
         return validMoves;
