@@ -11,11 +11,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         this.position = position;
     }
 
-    public static boolean onBoard(ChessPosition position) {
-        int row = position.getRow();
-        int col = position.getColumn();
-        return (1 <= row && row <= 8) && (1 <= col && col <= 8);
-    }
 
     private ArrayList<ChessMove> handlePromotions(ChessPosition positionInQuestion, ChessPiece currentPiece) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();

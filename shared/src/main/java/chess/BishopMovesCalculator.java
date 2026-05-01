@@ -11,12 +11,6 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         this.position = position;
     }
 
-    public static boolean onBoard(ChessPosition position) {
-        int row = position.getRow();
-        int col = position.getColumn();
-        return (1 <= row && row <= 8) && (1 <= col && col <= 8);
-    }
-
     @Override
     public ArrayList<ChessMove> pieceMoves() {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
