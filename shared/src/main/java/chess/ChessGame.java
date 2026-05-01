@@ -68,7 +68,6 @@ public class ChessGame {
             whitePositions = container.get(0);
             blackPositions = container.get(1);
 
-            // TODO: Ask about addAll with collection and ArrayList
             // Grab all possible valid moves
             possibleMoves.addAll(originalPiece.pieceMoves(board, startPosition));
 
@@ -254,41 +253,43 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
        if (isInCheck(teamColor)) {
-           ArrayList<ChessPosition> whitePositions;
-           ArrayList<ChessPosition> blackPositions;
-           ArrayList<ArrayList<ChessPosition>> container;
-           ChessPiece originalPiece;
-           ChessPiece pieceTaken;
-           ChessPosition kingPosition = new ChessPosition(1,1);
-           ArrayList<ChessMove> validMoves;
-           container = populatePieces();
-           whitePositions = container.get(0);
-           blackPositions = container.get(1);
-
-           // Loop through team positions depending on color
-           if (teamColor == TeamColor.WHITE) {
-               for (ChessPosition position : whitePositions) {
-                   validMoves = (ArrayList<ChessMove>) validMoves(position);
-                   if (!validMoves.isEmpty()) {
-                       return false;
-                   }
-               }
-           } else {
-               for (ChessPosition position : blackPositions) {
-                   validMoves = (ArrayList<ChessMove>) validMoves(position);
-                   if (!validMoves.isEmpty()) {
-                       return false;
-                   }
-               }
-           }
-           return true;
+           return noValidMoves(teamColor);
+       } else {
+            return false;
        }
         // Check if isInCheck() is true
         // Loop through the whole board and grab all piece positions
         // Loop through white pieces and check if each piece has any valid moves
         // If so, return false
         // else return true
-        return false;
+    }
+
+    private boolean noValidMoves(TeamColor teamColor) {
+        ArrayList<ChessPosition> whitePositions;
+        ArrayList<ChessPosition> blackPositions;
+        ArrayList<ArrayList<ChessPosition>> container;
+        ArrayList<ChessMove> validMoves;
+        container = populatePieces();
+        whitePositions = container.get(0);
+        blackPositions = container.get(1);
+
+        // Loop through team positions depending on color
+        if (teamColor == TeamColor.WHITE) {
+            for (ChessPosition position : whitePositions) {
+                validMoves = (ArrayList<ChessMove>) validMoves(position);
+                if (!validMoves.isEmpty()) {
+                    return false;
+                }
+            }
+        } else {
+            for (ChessPosition position : blackPositions) {
+                validMoves = (ArrayList<ChessMove>) validMoves(position);
+                if (!validMoves.isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -300,36 +301,10 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         if (!isInCheck(teamColor)) {
-            ArrayList<ChessPosition> whitePositions;
-            ArrayList<ChessPosition> blackPositions;
-            ArrayList<ArrayList<ChessPosition>> container;
-            ChessPiece originalPiece;
-            ChessPiece pieceTaken;
-            ChessPosition kingPosition = new ChessPosition(1,1);
-            ArrayList<ChessMove> validMoves;
-            container = populatePieces();
-            whitePositions = container.get(0);
-            blackPositions = container.get(1);
-
-            // Loop through team positions depending on color
-            if (teamColor == TeamColor.WHITE) {
-                for (ChessPosition position : whitePositions) {
-                    validMoves = (ArrayList<ChessMove>) validMoves(position);
-                    if (!validMoves.isEmpty()) {
-                        return false;
-                    }
-                }
-            } else {
-                for (ChessPosition position : blackPositions) {
-                    validMoves = (ArrayList<ChessMove>) validMoves(position);
-                    if (!validMoves.isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return noValidMoves(teamColor);
+        } else {
+            return false;
         }
-        return false;
     }
 
     /**

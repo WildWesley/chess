@@ -42,7 +42,6 @@ public class ChessBoard {
         ChessPosition endPosition = move.getEndPosition();
         ChessPiece movePiece = board.getPiece(startPosition);
 
-        // TODO: Check if I'm allowed to add a null piece?
         board.addPiece(startPosition, null);
         board.addPiece(endPosition, movePiece);
     }
