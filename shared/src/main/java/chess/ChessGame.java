@@ -1,5 +1,7 @@
 package chess;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -9,16 +11,24 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    TeamColor teamTurn;
+    ChessBoard board;
+    // Populate this every single time maybe in a helper function
+    ArrayList<ChessPosition> whitePositions = new ArrayList<>();
+    ArrayList<ChessPosition> blackPositions = new ArrayList<>();
+    ChessPosition whiteKingPosition = new ChessPosition();
+    ChessPosition blackKingPosition = new ChessPosition();
+
 
     public ChessGame() {
-
+        this.board = new ChessBoard();
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        throw new RuntimeException("Not implemented");
+        return teamTurn;
     }
 
     /**
@@ -27,7 +37,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        throw new RuntimeException("Not implemented");
+        teamTurn = team;
     }
 
     /**
@@ -46,7 +56,19 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece pieceInQuestion = board.getPiece(startPosition);
+        ArrayList<ChessMove> possibleMoves = new ArrayList<>();
+        if (pieceInQuestion == null) {return null;}
+        else {
+            // Loop through whole board, populate all positions, save them
+            // Grab all possible moves with pieceMoves();
+            // Use movePiece() to actually move the piece
+            // Check if isInCheck() is true, if so, remove from possibleMoves, reset the board (function), and iterate
+            return pieceInQuestion.pieceMoves(board, startPosition);}
+    }
+
+    public void movePiece(ChessMove move) {
+        // Moving the piece on the board
     }
 
     /**
@@ -56,7 +78,12 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        // Grab the piece at the start position
+        // Grab all valid moves with validMoves()
+        // Check if move is in validMoves
+        // if so, movePiece
+        // else throw error
+        // Change team turn
     }
 
     /**
@@ -67,6 +94,18 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         throw new RuntimeException("Not implemented");
+
+        // Loop through all positions, populate pieces, loop through opponent positions, check if king is attacked
+        // Populate all team positions AND find king position
+        // Loop through pieces on opposing team, and use pieceMoves() to get attacked spaces
+        // Check if at any time a possibly attacked space is the king position, if so, return true
+        // else return false
+    }
+
+    public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
+        throw new RuntimeException("Not implemented");
+
+        // Loop through all opposing pieces and see if any of the pieces can attack king, if so break
     }
 
     /**
@@ -76,7 +115,11 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // Check if isInCheck() is true
+        // Loop through the whole board and grab all piece positions
+        // Loop through white pieces and check if each piece has any valid moves
+        // If so, return false
+        // else return true
     }
 
     /**
@@ -87,7 +130,11 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        // Check if isInCheck() is false
+        // Loop through the whole board and grab all piece positions
+        // Loop through white pieces and check if each piece has any valid moves
+        // If so, return false
+        // else return true
     }
 
     /**
@@ -96,7 +143,7 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        this.board = board;
     }
 
     /**

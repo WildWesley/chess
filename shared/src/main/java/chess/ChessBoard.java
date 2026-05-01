@@ -37,6 +37,16 @@ public class ChessBoard {
         return squares[position.getRow() - 1][position.getColumn() - 1];
     }
 
+    public void movePiece(ChessBoard board, ChessMove move) {
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+        ChessPiece movePiece = board.getPiece(startPosition);
+
+        // TODO: Check if I'm allowed to add a null piece?
+        board.addPiece(startPosition, null);
+        board.addPiece(endPosition, movePiece);
+    }
+
     private void addPieceAtCoordinates(int row, int col, ChessPiece piece) {
         ChessPosition position = new ChessPosition(row,col);
         addPiece(position, piece);
