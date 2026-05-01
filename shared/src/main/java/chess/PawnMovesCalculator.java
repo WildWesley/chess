@@ -137,13 +137,18 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return validMoves;
     }
 
-    private ArrayList<ChessMove> blackAttack() {
+    private ArrayList<ChessMove> attack(ChessGame.TeamColor color) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
         ArrayList<ChessMove> validPromotions;
         ChessPiece currentPiece = board.getPiece(new ChessPosition(position.getRow(), position.getColumn()));
         ChessPiece pieceInQuestion;
         int j = position.getColumn() - 1;
-        int i = position.getRow() - 1;
+        int i;
+        if (color == ChessGame.TeamColor.BLACK) {
+            i = position.getRow() - 1;
+        } else {
+            i = position.getRow() + 1;
+        }
         ChessPosition positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
             pieceInQuestion = board.getPiece(positionInQuestion);
@@ -158,7 +163,11 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             }
         }
 
-        i = position.getRow() - 1;
+        if (color == ChessGame.TeamColor.BLACK) {
+            i = position.getRow() - 1;
+        } else {
+            i = position.getRow() + 1;
+        }
         j = position.getColumn() + 1;
         positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
@@ -191,14 +200,14 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             validMoves.addAll(whiteForward());
 
             // Attack
-            validMoves.addAll(whiteAttack());
+            validMoves.addAll(attack(ChessGame.TeamColor.WHITE));
 
         } else {
             // Forward
             validMoves.addAll(blackForward());
 
             // Attack
-            validMoves.addAll(blackAttack());
+            validMoves.addAll(attack(ChessGame.TeamColor.BLACK));
         }
 
         return validMoves;
