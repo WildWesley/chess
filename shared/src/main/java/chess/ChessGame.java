@@ -183,6 +183,33 @@ public class ChessGame {
         board.addPiece(endPosition, pieceTaken);
     }
 
+    private ChessPosition findKingPosition(ArrayList<ChessPosition> positions) {
+        ChessPiece pieceInQuestion;
+        for (ChessPosition position : positions) {
+            pieceInQuestion = board.getPiece(position);
+            if (pieceInQuestion.getPieceType() == ChessPiece.PieceType.KING) {
+                // return king position
+                return position;
+            }
+        }
+        return null;
+    }
+
+    private boolean pieceAttackingKing(ArrayList<ChessPosition> positions, ChessPosition kingPosition) {
+        ChessPiece pieceInQuestion;
+        ArrayList<ChessMove> pieceMoves;
+        for (ChessPosition position : positions) {
+            pieceInQuestion = board.getPiece(position);
+            pieceMoves = (ArrayList<ChessMove>) pieceInQuestion.pieceMoves(board, position);
+            for (ChessMove move : pieceMoves) {
+                if (move.getEndPosition().equals(kingPosition)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Determines if the given team is in check
      *
@@ -202,47 +229,17 @@ public class ChessGame {
 
         // Find king position using teamColor
         if (teamColor == TeamColor.WHITE) {
-            for (ChessPosition position : whitePositions) {
-                pieceInQuestion = board.getPiece(position);
-                if (pieceInQuestion.getPieceType() == ChessPiece.PieceType.KING) {
-                    kingPosition = position;
-                    break;
-                }
-            }
+            kingPosition = findKingPosition(whitePositions);
         } else {
-            for (ChessPosition position : blackPositions) {
-                pieceInQuestion = board.getPiece(position);
-                if (pieceInQuestion.getPieceType() == ChessPiece.PieceType.KING) {
-                    kingPosition = position;
-                    break;
-                }
-            }
+            kingPosition = findKingPosition(blackPositions);
         }
 
         // Loop through opposing pieces
         if (teamColor == TeamColor.WHITE) {
-            for (ChessPosition position : blackPositions) {
-                pieceInQuestion = board.getPiece(position);
-                pieceMoves = (ArrayList<ChessMove>) pieceInQuestion.pieceMoves(board, position);
-                for (ChessMove move : pieceMoves) {
-                    if (move.getEndPosition().equals(kingPosition)) {
-                        return true;
-                    }
-                }
-            }
+            return pieceAttackingKing(blackPositions, kingPosition);
         } else {
-            for (ChessPosition position : whitePositions) {
-                pieceInQuestion = board.getPiece(position);
-                pieceMoves = (ArrayList<ChessMove>) pieceInQuestion.pieceMoves(board, position);
-                for (ChessMove move : pieceMoves) {
-                    if (move.getEndPosition().equals(kingPosition)) {
-                        return true;
-                    }
-                }
-            }
+            return pieceAttackingKing(whitePositions, kingPosition);
         }
-        // No piece attacking king position
-        return false;
     }
 
     /**

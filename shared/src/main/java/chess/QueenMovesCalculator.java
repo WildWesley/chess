@@ -20,13 +20,13 @@ public class QueenMovesCalculator implements PieceMovesCalculator {
         ChessPiece pieceInQuestion;
 
         // ROOK MOVES
-        RookMovesCalculator RookCalculator = new RookMovesCalculator(board, position);
-        validMoves.addAll(RookCalculator.pieceMoves());
+        RookMovesCalculator rookCalculator = new RookMovesCalculator(board, position);
+        validMoves.addAll(rookCalculator.pieceMoves());
 
         // BISHOP MOVES
         // Up-Right
-        BishopMovesCalculator BishopCalculator = new BishopMovesCalculator(board, position);
-        validMoves.addAll(BishopCalculator.pieceMoves());
+        BishopMovesCalculator bishopCalculator = new BishopMovesCalculator(board, position);
+        validMoves.addAll(bishopCalculator.pieceMoves());
 
         return validMoves;
     }
