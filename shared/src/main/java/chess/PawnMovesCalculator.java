@@ -123,48 +123,23 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
 
     private ArrayList<ChessMove> attack(ChessGame.TeamColor color) {
         ArrayList<ChessMove> validMoves = new ArrayList<>();
-        ArrayList<ChessMove> validPromotions;
-        ChessPiece currentPiece = board.getPiece(new ChessPosition(position.getRow(), position.getColumn()));
-        ChessPiece pieceInQuestion;
         int j = position.getColumn() - 1;
         int i;
         if (color == ChessGame.TeamColor.BLACK) {
             i = position.getRow() - 1;
+            validMoves.addAll(addMovesAtAttackCoordinate(i, j));
         } else {
             i = position.getRow() + 1;
-        }
-        ChessPosition positionInQuestion = new ChessPosition(i,j);
-        if (onBoard(positionInQuestion)) {
-            pieceInQuestion = board.getPiece(positionInQuestion);
-            if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
-                validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                if (validPromotions.isEmpty()) {
-                    validMoves.add(new ChessMove(position, positionInQuestion, null));
-                } else {
-                    validMoves.addAll(validPromotions);
-                    validPromotions.clear();
-                }
-            }
+            validMoves.addAll(addMovesAtAttackCoordinate(i, j));
         }
 
         j = position.getColumn() + 1;
         if (color == ChessGame.TeamColor.BLACK) {
             i = position.getRow() - 1;
+            validMoves.addAll(addMovesAtAttackCoordinate(i, j));
         } else {
             i = position.getRow() + 1;
-        }
-        positionInQuestion = new ChessPosition(i,j);
-        if (onBoard(positionInQuestion)) {
-            pieceInQuestion = board.getPiece(positionInQuestion);
-            if (pieceInQuestion != null && pieceInQuestion.getTeamColor() != currentPiece.getTeamColor()) {
-                validPromotions = handlePromotions(positionInQuestion, currentPiece);
-                if (validPromotions.isEmpty()) {
-                    validMoves.add(new ChessMove(position, positionInQuestion, null));
-                } else {
-                    validMoves.addAll(validPromotions);
-                    validPromotions.clear();
-                }
-            }
+            validMoves.addAll(addMovesAtAttackCoordinate(i, j));
         }
 
         return validMoves;
