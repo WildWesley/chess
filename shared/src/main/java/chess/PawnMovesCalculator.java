@@ -43,6 +43,10 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         ChessPiece currentPiece = board.getPiece(new ChessPosition(position.getRow(), position.getColumn()));
         int i = position.getRow() + 1;
         int j = position.getColumn();
+
+        // Second Space to Check Later
+        ChessPosition secondSpace = new ChessPosition(i + 1, j);
+
         ChessPosition positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
             ChessPiece pieceInQuestion = board.getPiece(positionInQuestion);
@@ -50,14 +54,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 ArrayList<ChessMove> validPromotions = handlePromotions(positionInQuestion, currentPiece);
                 if (validPromotions.isEmpty()) {
                     validMoves.add(new ChessMove(position, positionInQuestion, null));
-                    if (positionInQuestion.getRow() == 3) {
-                        i = position.getRow() + 2;
-                        j = position.getColumn();
-                        positionInQuestion = new ChessPosition(i, j);
-                        pieceInQuestion = board.getPiece(positionInQuestion);
-                        if (pieceInQuestion == null) {
-                            validMoves.add(new ChessMove(position, positionInQuestion, null));
-                        }
+                    if (positionInQuestion.getRow() == 3 && board.getPiece(secondSpace) == null) {
+                        validMoves.add(new ChessMove(position, secondSpace, null));
                     }
                 } else {
                     validMoves.addAll(validPromotions);
@@ -75,6 +73,10 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         ChessPiece pieceInQuestion;
         int i = position.getRow() - 1;
         int j = position.getColumn();
+
+        // Second Space to Check Later
+        ChessPosition secondSpace = new ChessPosition(i - 1, j);
+
         ChessPosition positionInQuestion = new ChessPosition(i,j);
         if (onBoard(positionInQuestion)) {
             pieceInQuestion = board.getPiece(positionInQuestion);
@@ -82,14 +84,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 validPromotions = handlePromotions(positionInQuestion, currentPiece);
                 if (validPromotions.isEmpty()) {
                     validMoves.add(new ChessMove(position, positionInQuestion, null));
-                    if (positionInQuestion.getRow() == 6) {
-                        i = position.getRow() - 2;
-                        j = position.getColumn();
-                        positionInQuestion = new ChessPosition(i,j);
-                        pieceInQuestion = board.getPiece(positionInQuestion);
-                        if (pieceInQuestion == null) {
-                            validMoves.add(new ChessMove(position, positionInQuestion, null));
-                        }
+                    if (positionInQuestion.getRow() == 6 && board.getPiece(secondSpace) == null) {
+                        validMoves.add(new ChessMove(position, secondSpace, null));
                     }
                 } else {
                     validMoves.addAll(validPromotions);
