@@ -22,4 +22,9 @@ public class MemoryAuthDataAccess implements AuthDataAccess {
     public void deleteAuth(String authToken) throws DataAccessException {
         authDatas.remove(authToken);
     }
+
+    @Override
+    public void clear() throws DataAccessException {
+        authDatas.clear();
+    }
 }

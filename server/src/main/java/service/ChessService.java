@@ -11,12 +11,12 @@ public class ChessService {
 
     private final AuthDataAccess authDataAccess;
     private final UserDataAccess userDataAccess;
-//    private final GameDataAccess gameDataAccess;
+    private final GameDataAccess gameDataAccess;
 
     public ChessService(AuthDataAccess authDataAccess) {
         this.authDataAccess = new MemoryAuthDataAccess();
         this.userDataAccess = new MemoryUserDataAccess();
-//        this.gameDataAccess = new MemoryGameDataAccess();
+        this.gameDataAccess = new MemoryGameDataAccess();
     }
 
     public static String generateToken() {
@@ -39,5 +39,11 @@ public class ChessService {
 
         // newAuthData is the register result
         return newAuthData;
+    }
+
+    public void clearApplication() throws DataAccessException {
+        authDataAccess.clear();
+        userDataAccess.clear();
+        gameDataAccess.clear();
     }
 }

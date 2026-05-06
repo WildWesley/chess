@@ -34,4 +34,8 @@ public class Server {
         AuthData registerResponse = service.register(registerRequest);
         ctx.result(new Gson().toJson(registerResponse));
     }
+
+    private void clearApplication(Context ctx) throws DataAccessException {
+        AuthData registerResponse = service.register(registerRequest);
+    }
 }
