@@ -17,7 +17,8 @@ public class Server {
     public Server() {
         this.service = new ChessService(new MemoryAuthDataAccess());
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
-                .post("/user", this::register);
+                .post("/user", this::register)
+                .delete("/db", this::clearApplication);
     }
 
     public int run(int desiredPort) {
@@ -36,6 +37,11 @@ public class Server {
     }
 
     private void clearApplication(Context ctx) throws DataAccessException {
-        AuthData registerResponse = service.register(registerRequest);
+        service.clearApplication();
+    }
+
+    @Override
+    public void login() throws DataAccessException {
+        service.login(loginRequest);
     }
 }
