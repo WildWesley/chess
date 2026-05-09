@@ -18,7 +18,7 @@ public class ChessService {
     private final UserDataAccess userDataAccess;
     private final GameDataAccess gameDataAccess;
 
-    public ChessService(AuthDataAccess authDataAccess) {
+    public ChessService() {
         this.authDataAccess = new MemoryAuthDataAccess();
         this.userDataAccess = new MemoryUserDataAccess();
         this.gameDataAccess = new MemoryGameDataAccess();

@@ -19,7 +19,7 @@ public class Server {
     // This constructor sets up the javalin URLs which interact with each of the handlers. By using different requests
     // such as post, delete, get, and put, different endpoints can share the same URL, simplifying URL structure.
     public Server() {
-        this.service = new ChessService(new MemoryAuthDataAccess());
+        this.service = new ChessService();
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::register)
                 .delete("/db", this::clearApplication)
