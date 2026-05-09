@@ -70,7 +70,7 @@ public class Server {
 
     public void logout(Context ctx) throws DataAccessException {
         try {
-            LogoutRequest logoutRequest = new Gson().fromJson(ctx.body(), LogoutRequest.class);
+            LogoutRequest logoutRequest = new Gson().fromJson(ctx.header("authorization"), LogoutRequest.class);
             service.logout(logoutRequest);
         } catch (DataAccessException e) {
             errorHandling(ctx, e);

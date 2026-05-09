@@ -29,9 +29,15 @@ public class ChessService {
     // A more complicated application would do the business logic in the service.
 
     public AuthData register(RegisterRequest registerRequest) throws DataAccessException {
+        if (registerRequest.username() == null ||
+            registerRequest.password() == null ||
+            registerRequest.email() == null) {
+            throw new DataAccessException(("Error: bad request"));
+        }
+
         UserData response = userDataAccess.getUser(registerRequest.username());
         if (response != null) {
-            throw new DataAccessException("Error: Username already taken");
+            throw new DataAccessException("Error: already taken");
         }
         UserData newUserData = new UserData(registerRequest.username(),
                 registerRequest.password(), registerRequest.email());
@@ -50,11 +56,17 @@ public class ChessService {
     }
 
     public AuthData login(LoginRequest loginRequest) throws DataAccessException {
-        UserData response = userDataAccess.getUser(loginRequest.username());
-        if (response == null) {
-            throw new DataAccessException("Error: bad request");
+        if (loginRequest.username() == null ||
+                loginRequest.password() == null) {
+            throw new DataAccessException(("Error: bad request"));
         }
-        if (!Objects.equals(response.password(), loginRequest.password())) {
+
+        UserData userData = userDataAccess.getUser(loginRequest.username());
+
+        if (userData == null) {
+            throw new DataAccessException("Error: unauthorized");
+        }
+        if (!Objects.equals(userData.password(), loginRequest.password())) {
             throw new DataAccessException("Error: unauthorized");
         }
 
@@ -66,6 +78,10 @@ public class ChessService {
     }
 
     public void logout(LogoutRequest logoutRequest) throws DataAccessException {
+        if (logoutRequest.authToken() == null) {
+            throw new DataAccessException(("Error: bad request"));
+        }
+
         AuthData response = authDataAccess.getAuth(logoutRequest.authToken());
         if (response == null) {
             throw new DataAccessException("Error: unauthorized");
@@ -74,6 +90,10 @@ public class ChessService {
     }
 
     public ArrayList<GameData> listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
+        if (listGamesRequest.authToken() == null) {
+            throw new DataAccessException(("Error: bad request"));
+        }
+
         AuthData response = authDataAccess.getAuth(listGamesRequest.authToken());
         if (response == null) {
             throw new DataAccessException("Error: unauthorized");
@@ -83,6 +103,11 @@ public class ChessService {
     }
 
     public CreateGameResponse createGame(CreateGameRequest createGameRequest) throws DataAccessException {
+        if (createGameRequest.gameName() == null ||
+            createGameRequest.authToken() == null) {
+            throw new DataAccessException(("Error: bad request"));
+        }
+
         AuthData response = authDataAccess.getAuth(createGameRequest.authToken());
         if (response == null) {
             throw new DataAccessException("Error: unauthorized");
@@ -92,6 +117,12 @@ public class ChessService {
     }
 
     public void joinGame(JoinGameRequest joinGameRequest) throws DataAccessException {
+        if (joinGameRequest.playerColor() == null ||
+            joinGameRequest.gameID() == null ||
+            joinGameRequest.authToken() == null) {
+            throw new DataAccessException(("Error: bad request"));
+        }
+
         AuthData authData = authDataAccess.getAuth(joinGameRequest.authToken());
 
         if (authData == null) {
