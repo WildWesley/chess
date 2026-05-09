@@ -14,8 +14,8 @@ public class MemoryGameDataAccess implements GameDataAccess {
     @Override
     public CreateGameResponse createGame(String gameName) throws DataAccessException {
         GameData newGameData = new GameData(runningGameID,
-                "null",
-                "null",
+                null,
+                null,
                 gameName,
                 new ChessGame());
         gameDatas.put(newGameData.gameID(), newGameData);

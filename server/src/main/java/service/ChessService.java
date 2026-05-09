@@ -131,16 +131,15 @@ public class ChessService {
 
         GameData gameData = gameDataAccess.getGame(joinGameRequest.gameID());
 
-        // Usernames seem to be set to null on default, so I changed the defaults here
-        // It's possible that the null string should be a null ptr
+        // Usernames seem to be set to null ptr on default
         if (gameData == null) {
             throw new DataAccessException("Error: bad request");
         } else if (joinGameRequest.playerColor().equals("WHITE")) {
-            if (!gameData.whiteUsername().equals("null")) {
+            if (gameData.whiteUsername() != null) {
                 throw new DataAccessException("Error: already taken");
             }
         } else {
-            if (!gameData.whiteUsername().equals("null")) {
+            if (gameData.whiteUsername() != null) {
                 throw new DataAccessException("Error: already taken");
             }
         }
