@@ -37,8 +37,6 @@ public class Server {
         javalin.stop();
     }
 
-    // TODO: There is some problem where passing null into player color doesn't result in a bad request, despite
-    // TODO: getting to this line. This is the last bug to fix.
     private void errorHandling(Context ctx, DataAccessException e) {
         ctx.result(new Gson().toJson(new ErrorMessage(e.getMessage())));
         switch (e.getMessage()) {

@@ -119,8 +119,6 @@ public class ChessService {
         return gameDataAccess.createGame(createGameRequest.gameName());
     }
 
-    // TODO: Here, the last bug is that the first condition triggers because playerColor is null, it shoots to throw the
-    // TODO: bad request error, but for whatever reason the code it's returning is 200 instead of 400.
     public void joinGame(JoinGameRequest joinGameRequest) throws DataAccessException {
         if (joinGameRequest.playerColor() == null ||
             joinGameRequest.gameID() == null ||
@@ -136,17 +134,20 @@ public class ChessService {
 
         GameData gameData = gameDataAccess.getGame(joinGameRequest.gameID());
 
-        // Usernames seem to be set to null ptr on default
+        // Usernames are set to null ptr on default
         if (gameData == null) {
             throw new DataAccessException("Error: bad request");
         } else if (joinGameRequest.playerColor().equals("WHITE")) {
             if (gameData.whiteUsername() != null) {
                 throw new DataAccessException("Error: already taken");
             }
-        } else {
+        } else if (joinGameRequest.playerColor().equals("BLACK")) {
             if (gameData.blackUsername() != null) {
                 throw new DataAccessException("Error: already taken");
             }
+        } else {
+            // In case they input a color that isn't WHITE or BLACK
+            throw new DataAccessException("Error: bad request");
         }
 
         if (joinGameRequest.playerColor().equals("WHITE")) {
