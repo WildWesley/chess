@@ -45,9 +45,13 @@ public class Server {
     }
 
     private void register(Context ctx) throws DataAccessException {
-        RegisterRequest registerRequest = new Gson().fromJson(ctx.body(), RegisterRequest.class);
-        AuthData registerResponse = service.register(registerRequest);
-        ctx.result(new Gson().toJson(registerResponse));
+        try {
+            RegisterRequest registerRequest = new Gson().fromJson(ctx.body(), RegisterRequest.class);
+            AuthData registerResponse = service.register(registerRequest);
+            ctx.result(new Gson().toJson(registerResponse));
+        } catch (DataAccessException e) {
+            errorHandling(ctx, e);
+        }
     }
 
     private void clearApplication(Context ctx) throws DataAccessException {
@@ -55,8 +59,8 @@ public class Server {
     }
 
     public void login(Context ctx) throws DataAccessException {
-        LoginRequest loginRequest = new Gson().fromJson(ctx.body(), LoginRequest.class);
         try {
+            LoginRequest loginRequest = new Gson().fromJson(ctx.body(), LoginRequest.class);
             AuthData loginResponse = service.login(loginRequest);
             ctx.result(new Gson().toJson(loginResponse));
         } catch (DataAccessException e) {
@@ -65,24 +69,40 @@ public class Server {
     }
 
     public void logout(Context ctx) throws DataAccessException {
-        LogoutRequest logoutRequest = new Gson().fromJson(ctx.body(), LogoutRequest.class);
-        service.logout(logoutRequest);
+        try {
+            LogoutRequest logoutRequest = new Gson().fromJson(ctx.body(), LogoutRequest.class);
+            service.logout(logoutRequest);
+        } catch (DataAccessException e) {
+            errorHandling(ctx, e);
+        }
     }
 
     public void listGames(Context ctx) throws DataAccessException {
-        ListGamesRequest listGamesRequest = new Gson().fromJson(ctx.body(), ListGamesRequest.class);
-        ArrayList<GameData> listGamesResponse = service.listGames(listGamesRequest);
-        ctx.result(new Gson().toJson(listGamesResponse));
+        try {
+            ListGamesRequest listGamesRequest = new Gson().fromJson(ctx.body(), ListGamesRequest.class);
+            ArrayList<GameData> listGamesResponse = service.listGames(listGamesRequest);
+            ctx.result(new Gson().toJson(listGamesResponse));
+        } catch (DataAccessException e) {
+            errorHandling(ctx, e);
+        }
     }
 
     public void createGame(Context ctx) throws DataAccessException {
-        CreateGameRequest createGameRequest = new Gson().fromJson(ctx.body(), CreateGameRequest.class);
-        CreateGameResponse createGameResponse = service.createGame(createGameRequest);
-        ctx.result(new Gson().toJson(createGameResponse));
+        try {
+            CreateGameRequest createGameRequest = new Gson().fromJson(ctx.body(), CreateGameRequest.class);
+            CreateGameResponse createGameResponse = service.createGame(createGameRequest);
+            ctx.result(new Gson().toJson(createGameResponse));
+        } catch (DataAccessException e) {
+            errorHandling(ctx, e);
+        }
     }
 
     public void joinGame(Context ctx) throws DataAccessException {
-        JoinGameRequest joinGameRequest = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
-        service.joinGame(joinGameRequest);
+        try {
+            JoinGameRequest joinGameRequest = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
+            service.joinGame(joinGameRequest);
+        } catch (DataAccessException e) {
+            errorHandling(ctx, e);
+        }
     }
 }
