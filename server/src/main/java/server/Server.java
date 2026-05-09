@@ -70,7 +70,8 @@ public class Server {
 
     public void logout(Context ctx) throws DataAccessException {
         try {
-            LogoutRequest logoutRequest = new Gson().fromJson(ctx.header("authorization"), LogoutRequest.class);
+            String authToken = ctx.header("authorization");
+            LogoutRequest logoutRequest = new LogoutRequest(authToken);
             service.logout(logoutRequest);
         } catch (DataAccessException e) {
             errorHandling(ctx, e);
@@ -79,8 +80,9 @@ public class Server {
 
     public void listGames(Context ctx) throws DataAccessException {
         try {
-            ListGamesRequest listGamesRequest = new Gson().fromJson(ctx.body(), ListGamesRequest.class);
-            ArrayList<GameData> listGamesResponse = service.listGames(listGamesRequest);
+            String authToken = ctx.header("authorization");
+            ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+            ListGamesResponse listGamesResponse = service.listGames(listGamesRequest);
             ctx.result(new Gson().toJson(listGamesResponse));
         } catch (DataAccessException e) {
             errorHandling(ctx, e);
@@ -90,6 +92,7 @@ public class Server {
     public void createGame(Context ctx) throws DataAccessException {
         try {
             CreateGameRequest createGameRequest = new Gson().fromJson(ctx.body(), CreateGameRequest.class);
+            createGameRequest = createGameRequest.addAuthorization(ctx.header("authorization"));
             CreateGameResponse createGameResponse = service.createGame(createGameRequest);
             ctx.result(new Gson().toJson(createGameResponse));
         } catch (DataAccessException e) {

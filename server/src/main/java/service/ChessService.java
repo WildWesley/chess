@@ -89,7 +89,7 @@ public class ChessService {
         authDataAccess.deleteAuth(response.authToken());
     }
 
-    public ArrayList<GameData> listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
+    public ListGamesResponse listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
         if (listGamesRequest.authToken() == null) {
             throw new DataAccessException(("Error: bad request"));
         }
@@ -99,7 +99,7 @@ public class ChessService {
             throw new DataAccessException("Error: unauthorized");
         }
 
-        return (ArrayList<GameData>) gameDataAccess.getAllGames();
+        return new ListGamesResponse((ArrayList<GameData>) gameDataAccess.getAllGames());
     }
 
     public CreateGameResponse createGame(CreateGameRequest createGameRequest) throws DataAccessException {

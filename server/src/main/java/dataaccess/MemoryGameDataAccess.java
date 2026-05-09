@@ -9,7 +9,7 @@ import java.util.HashMap;
 public class MemoryGameDataAccess implements GameDataAccess {
     // String is the authToken
     final private HashMap<Integer, GameData> gameDatas = new HashMap<>();
-    private int runningGameID = 0;
+    private int runningGameID = 1;
 
     @Override
     public CreateGameResponse createGame(String gameName) throws DataAccessException {
