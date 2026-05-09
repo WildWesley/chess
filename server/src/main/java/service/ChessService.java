@@ -52,10 +52,10 @@ public class ChessService {
     public AuthData login(LoginRequest loginRequest) throws DataAccessException {
         UserData response = userDataAccess.getUser(loginRequest.username());
         if (response == null) {
-            throw new DataAccessException("Error: Bad Request");
+            throw new DataAccessException("Error: bad request");
         }
         if (!Objects.equals(response.password(), loginRequest.password())) {
-            throw new DataAccessException("Error: Unauthorized");
+            throw new DataAccessException("Error: unauthorized");
         }
 
         AuthData newAuthData = new AuthData(generateToken(), loginRequest.username());
@@ -68,7 +68,7 @@ public class ChessService {
     public void logout(LogoutRequest logoutRequest) throws DataAccessException {
         AuthData response = authDataAccess.getAuth(logoutRequest.authToken());
         if (response == null) {
-            throw new DataAccessException("Error: Unauthorized");
+            throw new DataAccessException("Error: unauthorized");
         }
         authDataAccess.deleteAuth(response.authToken());
     }
@@ -76,7 +76,7 @@ public class ChessService {
     public ArrayList<GameData> listGames(ListGamesRequest listGamesRequest) throws DataAccessException {
         AuthData response = authDataAccess.getAuth(listGamesRequest.authToken());
         if (response == null) {
-            throw new DataAccessException("Error: Unauthorized");
+            throw new DataAccessException("Error: unauthorized");
         }
 
         return (ArrayList<GameData>) gameDataAccess.getAllGames();
@@ -85,7 +85,7 @@ public class ChessService {
     public CreateGameResponse createGame(CreateGameRequest createGameRequest) throws DataAccessException {
         AuthData response = authDataAccess.getAuth(createGameRequest.authToken());
         if (response == null) {
-            throw new DataAccessException("Error: Unauthorized");
+            throw new DataAccessException("Error: unauthorized");
         }
 
         return gameDataAccess.createGame(createGameRequest.gameName());
@@ -95,20 +95,20 @@ public class ChessService {
         AuthData authData = authDataAccess.getAuth(joinGameRequest.authToken());
 
         if (authData == null) {
-            throw new DataAccessException("Error: Unauthorized");
+            throw new DataAccessException("Error: unauthorized");
         }
 
         GameData gameData = gameDataAccess.getGame(joinGameRequest.gameID());
 
         if (gameData == null) {
-            throw new DataAccessException("Error: Bad Request");
+            throw new DataAccessException("Error: bad request");
         } else if (joinGameRequest.playerColor().equals("WHITE")) {
             if (!gameData.whiteUsername().isEmpty()) {
-                throw new DataAccessException("Error: Already taken");
+                throw new DataAccessException("Error: already taken");
             }
         } else {
             if (!gameData.whiteUsername().isEmpty()) {
-                throw new DataAccessException("Error: Already taken");
+                throw new DataAccessException("Error: already taken");
             }
         }
 
