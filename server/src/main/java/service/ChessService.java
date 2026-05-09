@@ -99,7 +99,7 @@ public class ChessService {
             throw new DataAccessException("Error: unauthorized");
         }
 
-        return new ListGamesResponse((ArrayList<GameData>) gameDataAccess.getAllGames());
+        return new ListGamesResponse(new ArrayList<GameData>(gameDataAccess.getAllGames()));
     }
 
     public CreateGameResponse createGame(CreateGameRequest createGameRequest) throws DataAccessException {

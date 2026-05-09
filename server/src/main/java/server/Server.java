@@ -102,7 +102,9 @@ public class Server {
 
     public void joinGame(Context ctx) throws DataAccessException {
         try {
+            String authToken = ctx.header("authorization");
             JoinGameRequest joinGameRequest = new Gson().fromJson(ctx.body(), JoinGameRequest.class);
+            joinGameRequest = joinGameRequest.addAuthorization(authToken);
             service.joinGame(joinGameRequest);
         } catch (DataAccessException e) {
             errorHandling(ctx, e);
