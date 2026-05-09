@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
 
+// The ChessService class is what takes in the request data through handler-created java objects, and calls the correct
+// DataAccess functions to interact correctly with the database/memory that the request needs to interact with. All
+// input logic is handled here.
 public class ChessService {
 
     private final AuthDataAccess authDataAccess;
@@ -116,11 +119,13 @@ public class ChessService {
         return gameDataAccess.createGame(createGameRequest.gameName());
     }
 
+    // TODO: Here, the last bug is that the first condition triggers because playerColor is null, it shoots to throw the
+    // TODO: bad request error, but for whatever reason the code it's returning is 200 instead of 400.
     public void joinGame(JoinGameRequest joinGameRequest) throws DataAccessException {
         if (joinGameRequest.playerColor() == null ||
             joinGameRequest.gameID() == null ||
             joinGameRequest.authToken() == null) {
-            throw new DataAccessException(("Error: bad request"));
+            throw new DataAccessException("Error: bad request");
         }
 
         AuthData authData = authDataAccess.getAuth(joinGameRequest.authToken());
@@ -139,7 +144,7 @@ public class ChessService {
                 throw new DataAccessException("Error: already taken");
             }
         } else {
-            if (gameData.whiteUsername() != null) {
+            if (gameData.blackUsername() != null) {
                 throw new DataAccessException("Error: already taken");
             }
         }

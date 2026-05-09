@@ -10,6 +10,8 @@ import service.ChessService;
 
 import java.util.ArrayList;
 
+// The server takes in the URL from the client and determines what request is being made
+// It then passes the information given to the correct handler
 public class Server {
     private final ChessService service;
     private final Javalin javalin;
@@ -35,6 +37,8 @@ public class Server {
         javalin.stop();
     }
 
+    // TODO: There is some problem where passing null into player color doesn't result in a bad request, despite
+    // TODO: getting to this line. This is the last bug to fix.
     private void errorHandling(Context ctx, DataAccessException e) {
         ctx.result(new Gson().toJson(new ErrorMessage(e.getMessage())));
         switch (e.getMessage()) {
@@ -44,6 +48,9 @@ public class Server {
         }
     }
 
+    // These are the various handlers. Depending on what request is being made, one of these will be called, which will
+    // translate the serialized information given into a java object and pass that to the correct service functions.
+    // Finally, the handlers will create the Javalin outputs.
     private void register(Context ctx) throws DataAccessException {
         try {
             RegisterRequest registerRequest = new Gson().fromJson(ctx.body(), RegisterRequest.class);
