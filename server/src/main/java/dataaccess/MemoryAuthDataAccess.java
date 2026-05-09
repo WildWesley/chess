@@ -4,6 +4,9 @@ import model.*;
 
 import java.util.HashMap;
 
+// MemoryGameDataAccess holds the hashmap that is used to store all the authentication data on the server with the
+// AuthData record type. It implements the UserDataAccess interface so that when database implementation is added, it
+// can easily be switched between the two.
 public class MemoryAuthDataAccess implements AuthDataAccess {
     // String is the authToken
     final private HashMap<String, AuthData> authDatas = new HashMap<>();

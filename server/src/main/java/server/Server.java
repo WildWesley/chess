@@ -16,6 +16,8 @@ public class Server {
     private final ChessService service;
     private final Javalin javalin;
 
+    // This constructor sets up the javalin URLs which interact with each of the handlers. By using different requests
+    // such as post, delete, get, and put, different endpoints can share the same URL, simplifying URL structure.
     public Server() {
         this.service = new ChessService(new MemoryAuthDataAccess());
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
@@ -37,6 +39,8 @@ public class Server {
         javalin.stop();
     }
 
+    // This error handling method takes in the Javalin context and the exception, publishes it to the Javalin result,
+    // and posts the correct error status code number
     private void errorHandling(Context ctx, DataAccessException e) {
         ctx.result(new Gson().toJson(new ErrorMessage(e.getMessage())));
         switch (e.getMessage()) {
