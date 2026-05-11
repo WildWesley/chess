@@ -5,10 +5,7 @@ import dataaccess.AuthDataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.GameDataAccess;
 import dataaccess.UserDataAccess;
-import model.AuthData;
-import model.GameData;
-import model.RegisterRequest;
-import model.UserData;
+import model.*;
 import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,17 +59,34 @@ class ChessServiceTest {
 
         testService.clearApplication();
 
+        Assertions.assertNull(testAuthDataAccess.getAuth("authToken"));
         Assertions.assertNull(testUserDataAccess.getUser("bob"));
-        Assertions.assertNull(testUserDataAccess.getUser("bob"));
-        Assertions.assertNull(testUserDataAccess.getUser("bob"));
+        Assertions.assertNull(testGameDataAccess.getGame(1));
     }
 
     @Test
-    void loginPositive() {
+    void loginPositive() throws DataAccessException {
+        RegisterRequest testRequest = new RegisterRequest("bob", "bob", "bob");
+        testService.register(testRequest);
+
+        LoginRequest loginRequest = new LoginRequest("bob", "bob");
+        AuthData userAuthData = testService.login(loginRequest);
+
+        Assertions.assertEquals("bob", userAuthData.username());
+        Assertions.assertNotNull(userAuthData.authToken());
+
+        UserData accessUserData = testUserDataAccess.getUser("bob");
+        UserData testUserData = new UserData("bob", "bob", "bob");
+        Assertions.assertEquals(accessUserData, testUserData);
+
+        // Test auth
+        AuthData accessAuthData = testAuthDataAccess.getAuth(userAuthData.authToken());
+        Assertions.assertEquals("bob", accessAuthData.username());
     }
 
     @Test
     void logoutPositive() {
+
     }
 
     @Test
