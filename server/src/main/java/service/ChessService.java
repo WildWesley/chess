@@ -28,8 +28,11 @@ public class ChessService {
         return UUID.randomUUID().toString();
     }
 
-    // Pet Shop is very simple.
-    // A more complicated application would do the business logic in the service.
+    public AuthDataAccess getAuthDataAccess() { return authDataAccess; }
+
+    public UserDataAccess getUserDataAccess() { return userDataAccess; }
+
+    public GameDataAccess getGameDataAccess() { return gameDataAccess; }
 
     public AuthData register(RegisterRequest registerRequest) throws DataAccessException {
         if (registerRequest.username() == null ||
