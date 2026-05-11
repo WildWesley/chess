@@ -1,11 +1,15 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.AuthDataAccess;
 import dataaccess.DataAccessException;
+import dataaccess.GameDataAccess;
 import dataaccess.UserDataAccess;
 import model.AuthData;
+import model.GameData;
 import model.RegisterRequest;
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +20,7 @@ class ChessServiceTest {
     ChessService testService;
     AuthDataAccess testAuthDataAccess;
     UserDataAccess testUserDataAccess;
+    GameDataAccess testGameDataAccess;
 
     @BeforeEach
     void createService() {
@@ -24,6 +29,8 @@ class ChessServiceTest {
         testAuthDataAccess = testService.getAuthDataAccess();
 
         testUserDataAccess = testService.getUserDataAccess();
+
+        testGameDataAccess = testService.getGameDataAccess();
     }
 
     @Test
@@ -44,7 +51,20 @@ class ChessServiceTest {
     }
 
     @Test
-    void clearApplicationPositive() {
+    void clearApplicationPositive() throws DataAccessException {
+        AuthData testAuthData = new AuthData("authToken", "bob");
+        testAuthDataAccess.createAuth(testAuthData);
+
+        UserData testUserData = new UserData("bob", "bob", "bob");
+        testUserDataAccess.createUser(testUserData);
+
+        testGameDataAccess.createGame("bob");
+
+        testService.clearApplication();
+
+        Assertions.assertNull(testUserDataAccess.getUser("bob"));
+        Assertions.assertNull(testUserDataAccess.getUser("bob"));
+        Assertions.assertNull(testUserDataAccess.getUser("bob"));
     }
 
     @Test
