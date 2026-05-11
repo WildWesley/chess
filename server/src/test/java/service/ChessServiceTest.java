@@ -121,8 +121,15 @@ class ChessServiceTest {
     }
 
     @Test
-    void joinGamePositive() {
-        
+    void joinGamePositive() throws DataAccessException {
+        AuthData testAuthData = testService.register(testRequest);
+        CreateGameResponse testGameResponse =
+                testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
+        JoinGameRequest testJoinRequest = new JoinGameRequest("WHITE", 1, testAuthData.authToken());
+        testService.joinGame(testJoinRequest);
+
+        // Assess that game player WHITE is bob
+        Assertions.assertEquals("bob", testGameDataAccess.getGame(1).whiteUsername());
     }
 
     @Test
@@ -135,21 +142,46 @@ class ChessServiceTest {
 
     @Test
     void loginFail() {
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            testService.register(testRequest);
+            AuthData userAuthData = testService.login(new LoginRequest("joe", "bob"));
+        });
     }
 
     @Test
-    void logoutFail() {
+    void logoutFail() throws DataAccessException {
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            testService.register(testRequest);
+            testService.login(testLoginRequest);
+            testService.logout(new LogoutRequest("authToken"));
+        });
     }
 
     @Test
-    void listGamesFail() {
+    void listGamesFail() throws DataAccessException {
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            AuthData testAuthData = testService.register(testRequest);
+            testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
+            ListGamesResponse listResponse = testService.listGames(new ListGamesRequest("authToken"));
+        });
     }
 
     @Test
     void createGameFail() {
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            AuthData testAuthData = testService.register(testRequest);
+            CreateGameResponse testGameResponse =
+                    testService.createGame(new CreateGameRequest("bob", "authToken"));
+        });
     }
 
     @Test
     void joinGameFail() {
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            AuthData testAuthData = testService.register(testRequest);
+            CreateGameResponse testGameResponse =
+                    testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
+            JoinGameRequest testJoinRequest = new JoinGameRequest("WHITE", 3, testAuthData.authToken());
+        });
     }
 }
