@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ChessServiceTest {
@@ -18,6 +21,8 @@ class ChessServiceTest {
     AuthDataAccess testAuthDataAccess;
     UserDataAccess testUserDataAccess;
     GameDataAccess testGameDataAccess;
+    RegisterRequest testRequest = new RegisterRequest("bob", "bob", "bob");
+    LoginRequest testLoginRequest = new LoginRequest("bob", "bob");
 
     @BeforeEach
     void createService() {
@@ -32,7 +37,6 @@ class ChessServiceTest {
 
     @Test
     void registerPositive() throws DataAccessException {
-        RegisterRequest testRequest = new RegisterRequest("bob", "bob", "bob");
         AuthData testAuthData = testService.register(testRequest);
         Assertions.assertNotNull(testAuthData);
         Assertions.assertEquals("bob", testAuthData.username());
@@ -66,11 +70,9 @@ class ChessServiceTest {
 
     @Test
     void loginPositive() throws DataAccessException {
-        RegisterRequest testRequest = new RegisterRequest("bob", "bob", "bob");
         testService.register(testRequest);
 
-        LoginRequest loginRequest = new LoginRequest("bob", "bob");
-        AuthData userAuthData = testService.login(loginRequest);
+        AuthData userAuthData = testService.login(testLoginRequest);
 
         Assertions.assertEquals("bob", userAuthData.username());
         Assertions.assertNotNull(userAuthData.authToken());
@@ -85,21 +87,42 @@ class ChessServiceTest {
     }
 
     @Test
-    void logoutPositive() {
+    void logoutPositive() throws DataAccessException {
+        testService.register(testRequest);
+        AuthData testAuthData = testService.login(testLoginRequest);
+        testService.logout(new LogoutRequest(testAuthData.authToken()));
 
+        Assertions.assertNull(testAuthDataAccess.getAuth(testAuthData.authToken()));
     }
 
     @Test
-    void listGamesPositive() {
+    void listGamesPositive() throws DataAccessException {
+        AuthData testAuthData = testService.register(testRequest);
+        testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
+        ListGamesResponse listResponse = testService.listGames(new ListGamesRequest(testAuthData.authToken()));
+        GameData testGame = new GameData(1,
+                null,
+                null,
+                "bob",
+                testGameDataAccess.getGame(1).game());
+        // "List.of()" lets me set the ArrayList to that initial value
+        Assertions.assertEquals(new ListGamesResponse(new ArrayList<GameData>(List.of(testGame))), listResponse);
     }
 
     @Test
-    void createGamePositive() {
+    void createGamePositive() throws DataAccessException {
+        AuthData testAuthData = testService.register(testRequest);
+        CreateGameResponse testGameResponse =
+                testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
+        Assertions.assertEquals(1, testGameResponse.gameID());
+
+        GameData accessGameData = testGameDataAccess.getGame(1);
+        Assertions.assertNotNull(accessGameData);
     }
 
     @Test
     void joinGamePositive() {
-
+        
     }
 
     @Test
