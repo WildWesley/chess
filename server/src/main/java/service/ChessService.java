@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.*;
 import model.*;
+import org.mindrot.jbcrypt.BCrypt;
 
 import javax.xml.crypto.Data;
 import java.util.ArrayList;
@@ -19,9 +20,18 @@ public class ChessService {
     private final GameDataAccess gameDataAccess;
 
     public ChessService() {
-        this.authDataAccess = new MemoryAuthDataAccess();
-        this.userDataAccess = new MemoryUserDataAccess();
-        this.gameDataAccess = new MemoryGameDataAccess();
+        try {
+            DatabaseManager.createDatabase();
+            // Create Tables Here
+            this.authDataAccess.configureTables();
+            this.authDataAccess = new MySqlAuthDataAccess();
+            this.userDataAccess = new MySqlUserDataAccess();
+            this.gameDataAccess = new MySqlGameDataAccess();
+        } catch (DataAccessException e) {
+            this.authDataAccess = new MemoryAuthDataAccess();
+            this.userDataAccess = new MemoryUserDataAccess();
+            this.gameDataAccess = new MemoryGameDataAccess();
+        }
     }
 
     public static String generateToken() {
@@ -46,7 +56,8 @@ public class ChessService {
             throw new DataAccessException("Error: already taken");
         }
         UserData newUserData = new UserData(registerRequest.username(),
-                registerRequest.password(), registerRequest.email());
+                BCrypt.hashpw(registerRequest.password(), BCrypt.gensalt()),
+                registerRequest.email());
         userDataAccess.createUser(newUserData);
         AuthData newAuthData = new AuthData(generateToken(), registerRequest.username());
         authDataAccess.createAuth(newAuthData);
@@ -72,7 +83,7 @@ public class ChessService {
         if (userData == null) {
             throw new DataAccessException("Error: unauthorized");
         }
-        if (!Objects.equals(userData.password(), loginRequest.password())) {
+        if (BCrypt.checkpw(loginRequest.password(), userData.password())) {
             throw new DataAccessException("Error: unauthorized");
         }
 
