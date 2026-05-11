@@ -7,26 +7,36 @@ import model.AuthData;
 import model.RegisterRequest;
 import model.UserData;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ChessServiceTest {
+    ChessService testService;
+    AuthDataAccess testAuthDataAccess;
+    UserDataAccess testUserDataAccess;
+
+    @BeforeEach
+    void createService() {
+        testService = new ChessService();
+
+        testAuthDataAccess = testService.getAuthDataAccess();
+
+        testUserDataAccess = testService.getUserDataAccess();
+    }
 
     @Test
     void registerPositive() throws DataAccessException {
-        ChessService testService = new ChessService();
         RegisterRequest testRequest = new RegisterRequest("bob", "bob", "bob");
         AuthData testAuthData = testService.register(testRequest);
         Assertions.assertNotNull(testAuthData);
         Assertions.assertEquals("bob", testAuthData.username());
         Assertions.assertNotNull(testAuthData.authToken());
 
-        AuthDataAccess testAuthDataAccess = testService.getAuthDataAccess();
         AuthData accessAuthData = testAuthDataAccess.getAuth(testAuthData.authToken());
         Assertions.assertEquals(testAuthData, accessAuthData);
 
-        UserDataAccess testUserDataAccess = testService.getUserDataAccess();
         UserData accessUserData = testUserDataAccess.getUser(testAuthData.username());
         Assertions.assertEquals(testRequest.username(), accessUserData.username());
         Assertions.assertEquals(testRequest.password(), accessUserData.password());
@@ -55,12 +65,16 @@ class ChessServiceTest {
 
     @Test
     void joinGamePositive() {
+
     }
 
     @Test
     void registerFail() {
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            RegisterRequest testRequest = new RegisterRequest("bob", null, "bob");
+            AuthData testAuthData = testService.register(testRequest);
+        });
     }
-
 
     @Test
     void loginFail() {
