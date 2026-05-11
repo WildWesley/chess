@@ -42,7 +42,7 @@ public class MemoryGameDataAccess implements GameDataAccess {
     }
 
     @Override
-    public void updateGameDataWhite(int gameID, String username) {
+    public void updateGameDataWhite(int gameID, String username) throws DataAccessException {
         GameData oldGameData = gameDatas.get(gameID);
         GameData newGameData = new GameData(oldGameData.gameID(),
                 username,
@@ -53,7 +53,7 @@ public class MemoryGameDataAccess implements GameDataAccess {
     }
 
     @Override
-    public void updateGameDataBlack(int gameID, String username) {
+    public void updateGameDataBlack(int gameID, String username) throws DataAccessException {
         GameData oldGameData = gameDatas.get(gameID);
         GameData newGameData = new GameData(oldGameData.gameID(),
                 oldGameData.whiteUsername(),

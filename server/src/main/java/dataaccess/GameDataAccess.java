@@ -15,7 +15,7 @@ public interface GameDataAccess {
 
     void clear() throws DataAccessException;
 
-    void updateGameDataWhite(int gameID, String username);
+    void updateGameDataWhite(int gameID, String username) throws DataAccessException;
 
-    void updateGameDataBlack(int gameID, String username);
+    void updateGameDataBlack(int gameID, String username) throws DataAccessException;
 }

@@ -179,9 +179,9 @@ class ChessServiceTest {
     void joinGameFail() {
         Assertions.assertThrows(DataAccessException.class, () -> {
             AuthData testAuthData = testService.register(testRequest);
-            CreateGameResponse testGameResponse =
-                    testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
+            testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
             JoinGameRequest testJoinRequest = new JoinGameRequest("WHITE", 3, testAuthData.authToken());
+            testService.joinGame(testJoinRequest);
         });
     }
 }
