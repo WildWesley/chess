@@ -15,15 +15,14 @@ import java.util.UUID;
 // input logic is handled here.
 public class ChessService {
 
-    private final AuthDataAccess authDataAccess;
-    private final UserDataAccess userDataAccess;
-    private final GameDataAccess gameDataAccess;
+    private AuthDataAccess authDataAccess;
+    private UserDataAccess userDataAccess;
+    private GameDataAccess gameDataAccess;
 
     public ChessService() {
         try {
             DatabaseManager.createDatabase();
             // Create Tables Here
-            this.authDataAccess.configureTables();
             this.authDataAccess = new MySqlAuthDataAccess();
             this.userDataAccess = new MySqlUserDataAccess();
             this.gameDataAccess = new MySqlGameDataAccess();

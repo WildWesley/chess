@@ -7,7 +7,9 @@ import model.GameData;
 import model.UserData;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -22,7 +24,6 @@ public class MySqlGameDataAccess implements GameDataAccess {
         configureDatabase();
     }
 
-    // TODO: Figure out how to store ChessGame in a variable
     private final String[] createStatements = {
             """
             CREATE TABLE IF NOT EXISTS  games (
@@ -30,7 +31,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
               `whiteUsername` varchar(256) DEFAULT NULL,
               `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
-              `json` TEXT NOT NULL,
+              `game` TEXT NOT NULL,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
@@ -72,7 +73,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
-        var statement = "SELECT game FROM users WHERE id=?";
+        var statement = "SELECT game FROM users WHERE gameID=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setInt(1, gameID);
@@ -87,12 +88,27 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public Collection<GameData> getAllGames() throws DataAccessException {
-        return gameDatas.values();
+        var gameList = new ArrayList<GameData>();
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT game FROM games";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                try (ResultSet resultSet = ps.executeQuery()) {
+                    while (resultSet.next()) {
+                        var json = resultSet.getString("game");
+                        GameData game = new Gson().fromJson(json, GameData.class);
+                        gameList.add(game);
+                    }
+                    return gameList;
+                }
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to add to database");
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE TABLE users;";
+        var statement = "TRUNCATE TABLE users";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
@@ -102,25 +118,33 @@ public class MySqlGameDataAccess implements GameDataAccess {
         }
     }
 
+    // UPDATE pet SET name = 'fido' WHERE id = 1
+
     @Override
     public void updateGameDataWhite(int gameID, String username) throws DataAccessException {
-        GameData oldGameData = gameDatas.get(gameID);
-        GameData newGameData = new GameData(oldGameData.gameID(),
-                username,
-                oldGameData.blackUsername(),
-                oldGameData.gameName(),
-                oldGameData.game());
-        gameDatas.put(gameID, newGameData);
+        var statement = "UPDATE pet SET whiteUsername=? WHERE gameID=?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, username);
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeQuery();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to add to database");
+        }
     }
 
     @Override
     public void updateGameDataBlack(int gameID, String username) throws DataAccessException {
-        GameData oldGameData = gameDatas.get(gameID);
-        GameData newGameData = new GameData(oldGameData.gameID(),
-                oldGameData.whiteUsername(),
-                username,
-                oldGameData.gameName(),
-                oldGameData.game());
-        gameDatas.put(gameID, newGameData);
+        var statement = "UPDATE pet SET blackUsername=? WHERE gameID=?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, username);
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeQuery();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to add to database");
+        }
     }
 }

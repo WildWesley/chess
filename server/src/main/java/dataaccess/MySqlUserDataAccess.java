@@ -58,7 +58,7 @@ public class MySqlUserDataAccess implements UserDataAccess {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        var statement = "SELECT username, password, email FROM users WHERE id=?";
+        var statement = "SELECT username, password, email FROM users WHERE username=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
@@ -74,7 +74,7 @@ public class MySqlUserDataAccess implements UserDataAccess {
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE TABLE users;";
+        var statement = "TRUNCATE TABLE users";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();

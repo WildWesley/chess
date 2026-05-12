@@ -55,14 +55,13 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
 
     @Override
     public AuthData getAuth(String authToken) throws DataAccessException {
-        var statement = "SELECT username, password, email FROM users WHERE id=?";
+        var statement = "SELECT authToken, username FROM auths WHERE authToken=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.setString(1, username);
+                preparedStatement.setString(1, authToken);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                return new UserData(resultSet.getString("username"),
-                        resultSet.getString("password"),
-                        resultSet.getString("email"));
+                return new AuthData(resultSet.getString("authToken"),
+                        resultSet.getString("username"));
             }
         } catch (Exception e) {
             throw new DataAccessException("Unable to add to database");
@@ -71,12 +70,20 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
 
     @Override
     public void deleteAuth(String authToken) throws DataAccessException {
-        authDatas.remove(authToken);
+        var statement = "DELETE FROM auths WHERE authToken=?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, authToken);
+                preparedStatement.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to add to database");
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE TABLE users;";
+        var statement = "TRUNCATE TABLE users";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
