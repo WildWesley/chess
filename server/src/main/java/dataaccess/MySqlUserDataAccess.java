@@ -63,9 +63,13 @@ public class MySqlUserDataAccess implements UserDataAccess {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                return new UserData(resultSet.getString("username"),
-                        resultSet.getString("password"),
-                        resultSet.getString("email"));
+                try {
+                    return new UserData(resultSet.getString("username"),
+                            resultSet.getString("password"),
+                            resultSet.getString("email"));
+                } catch (Exception e) {
+                    return null;
+                }
             }
         } catch (Exception e) {
             throw new DataAccessException("Unable to add to database");
