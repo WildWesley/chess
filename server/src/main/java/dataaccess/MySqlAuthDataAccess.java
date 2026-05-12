@@ -60,10 +60,10 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                try {
+                if (resultSet.next()) {
                     return new AuthData(resultSet.getString("authToken"),
                             resultSet.getString("username"));
-                } catch (Exception e) {
+                } else {
                     return null;
                 }
             }
@@ -87,7 +87,7 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE TABLE users";
+        var statement = "TRUNCATE TABLE auths";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();

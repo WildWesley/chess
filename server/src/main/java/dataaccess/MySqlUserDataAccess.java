@@ -63,11 +63,11 @@ public class MySqlUserDataAccess implements UserDataAccess {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                try {
+                if (resultSet.next()) {
                     return new UserData(resultSet.getString("username"),
                             resultSet.getString("password"),
                             resultSet.getString("email"));
-                } catch (Exception e) {
+                } else {
                     return null;
                 }
             }
