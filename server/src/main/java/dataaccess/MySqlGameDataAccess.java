@@ -78,8 +78,12 @@ public class MySqlGameDataAccess implements GameDataAccess {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setInt(1, gameID);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                var json = resultSet.getString("json");
-                return new Gson().fromJson(json, GameData.class);
+                try {
+                    var json = resultSet.getString("json");
+                    return new Gson().fromJson(json, GameData.class);
+                } catch (Exception e) {
+                    return null;
+                }
             }
         } catch (Exception e) {
             throw new DataAccessException("Unable to add to database");

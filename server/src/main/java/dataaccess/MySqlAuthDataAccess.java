@@ -60,8 +60,12 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, authToken);
                 ResultSet resultSet = preparedStatement.executeQuery();
-                return new AuthData(resultSet.getString("authToken"),
-                        resultSet.getString("username"));
+                try {
+                    return new AuthData(resultSet.getString("authToken"),
+                            resultSet.getString("username"));
+                } catch (Exception e) {
+                    return null;
+                }
             }
         } catch (Exception e) {
             throw new DataAccessException("Unable to add to database");
