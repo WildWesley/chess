@@ -3,6 +3,7 @@ package dataaccess;
 import com.google.gson.Gson;
 
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
 
 import java.sql.*;
 
@@ -57,11 +58,22 @@ public class MySqlUserDataAccess implements UserDataAccess {
 
     @Override
     public UserData getUser(String username) throws DataAccessException {
-        return null;
+        var statement = "SELECT username, password, email FROM users WHERE id=?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, username);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                return new UserData(resultSet.getString("username"),
+                        resultSet.getString("password"),
+                        resultSet.getString("email"));
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to add to database");
+        }
     }
 
     @Override
     public void clear() throws DataAccessException {
-
+        // TODO: How do you delete in SQL
     }
 }
