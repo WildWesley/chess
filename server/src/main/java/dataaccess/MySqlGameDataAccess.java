@@ -1,10 +1,13 @@
 package dataaccess;
 
 import chess.ChessGame;
+import com.google.gson.Gson;
 import model.CreateGameResponse;
 import model.GameData;
+import model.UserData;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -24,10 +27,10 @@ public class MySqlGameDataAccess implements GameDataAccess {
             """
             CREATE TABLE IF NOT EXISTS  games (
               `gameID` varchar(256) NOT NULL,
-              `whiteUsername` varchar(256) NOT NULL,
-              `blackUsername` varchar(256) NOT NULL,
+              `whiteUsername` varchar(256) DEFAULT NULL,
+              `blackUsername` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
-              `game` varchar(256) NOT NULL,
+              `json` TEXT NOT NULL,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
@@ -48,14 +51,19 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public CreateGameResponse createGame(String gameName) throws DataAccessException {
-        var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameBoard, gameTeamTurn) " +
+        var statement = "INSERT INTO games (gameID, gameName, game) " +
                 "VALUES (?, ?, ?)";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.setString(1, userData.username());
-                preparedStatement.setString(2, userData.password());
-                preparedStatement.setString(3, userData.email());
+                ChessGame game = new ChessGame();
+                String json = new Gson().toJson(game);
+                preparedStatement.setInt(1, runningGameID);
+                preparedStatement.setString(2, gameName);
+                preparedStatement.setString(3, json);
                 preparedStatement.executeUpdate();
+                CreateGameResponse gameResponse = new CreateGameResponse(runningGameID);
+                runningGameID++;
+                return gameResponse;
             }
         } catch (Exception e) {
             throw new DataAccessException("Unable to add to database");
@@ -64,7 +72,17 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
-        return gameDatas.get(gameID);
+        var statement = "SELECT game FROM users WHERE id=?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setInt(1, gameID);
+                ResultSet resultSet = preparedStatement.executeQuery();
+                var json = resultSet.getString("json");
+                return new Gson().fromJson(json, GameData.class);
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to add to database");
+        }
     }
 
     @Override
@@ -74,7 +92,14 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public void clear() throws DataAccessException {
-        gameDatas.clear();
+        var statement = "TRUNCATE TABLE users;";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Unable to add to database");
+        }
     }
 
     @Override

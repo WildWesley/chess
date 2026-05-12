@@ -1,29 +1,27 @@
 package dataaccess;
 
-import com.google.gson.Gson;
-
+import model.AuthData;
 import model.UserData;
-import org.eclipse.jetty.server.Authentication;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.util.HashMap;
 
-import static java.sql.Statement.RETURN_GENERATED_KEYS;
-import static java.sql.Types.NULL;
-
-
-public class MySqlUserDataAccess implements UserDataAccess {
-
-    public MySqlUserDataAccess() throws DataAccessException {
+// MemoryGameDataAccess holds the hashmap that is used to store all the authentication data on the server with the
+// AuthData record type. It implements the UserDataAccess interface so that when database implementation is added, it
+// can easily be switched between the two.
+public class MySqlAuthDataAccess implements AuthDataAccess {
+    // String is the authToken
+    public MySqlAuthDataAccess() throws DataAccessException {
         configureDatabase();
     }
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  users (
+            CREATE TABLE IF NOT EXISTS  auths (
+              `authToken` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL,
-              `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`username`)
+              PRIMARY KEY (`authToken`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
@@ -42,13 +40,12 @@ public class MySqlUserDataAccess implements UserDataAccess {
     }
 
     @Override
-    public void createUser(UserData userData) throws DataAccessException {
-        var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
+    public void createAuth(AuthData authData) throws DataAccessException {
+        var statement = "INSERT INTO auths (authToken, username) VALUES (?, ?)";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.setString(1, userData.username());
-                preparedStatement.setString(2, userData.password());
-                preparedStatement.setString(3, userData.email());
+                preparedStatement.setString(1, authData.authToken());
+                preparedStatement.setString(2, authData.username());
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
@@ -57,7 +54,7 @@ public class MySqlUserDataAccess implements UserDataAccess {
     }
 
     @Override
-    public UserData getUser(String username) throws DataAccessException {
+    public AuthData getAuth(String authToken) throws DataAccessException {
         var statement = "SELECT username, password, email FROM users WHERE id=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
@@ -70,6 +67,11 @@ public class MySqlUserDataAccess implements UserDataAccess {
         } catch (Exception e) {
             throw new DataAccessException("Unable to add to database");
         }
+    }
+
+    @Override
+    public void deleteAuth(String authToken) throws DataAccessException {
+        authDatas.remove(authToken);
     }
 
     @Override
