@@ -57,6 +57,21 @@ class DataAccessTests {
     }
 
     @Test
+    void createUserNeg() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+        testUserDataAccess.createUser(testUserData);
+    }
+
+    @Test
+
+    void getUserNeg() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+        UserData fakeUser = new UserData("joe", "joe", "joe");
+        UserData accessUserData = testUserDataAccess.getUser(fakeUser.username());
+        Assertions.assertNotEquals(accessUserData, testUserData);
+    }
+
+    @Test
     void clearApplicationPositive() throws DataAccessException {
         AuthData testAuthData = new AuthData("authToken", "bob");
         testAuthDataAccess.createAuth(testAuthData);
