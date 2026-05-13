@@ -65,7 +65,11 @@ public class Server {
     }
 
     private void clearApplication(Context ctx) throws DataAccessException {
-        service.clearApplication();
+        try {
+            service.clearApplication();
+        } catch (DataAccessException e) {
+            errorHandling(ctx, e);
+        }
     }
 
     public void login(Context ctx) throws DataAccessException {
