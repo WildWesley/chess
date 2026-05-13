@@ -33,8 +33,9 @@ class DataAccessTests {
     LoginRequest testLoginRequest = new LoginRequest("bob", "bob");
 
     @BeforeEach
-    void createService() {
+    void createService() throws DataAccessException {
         testService = new ChessService();
+        testService.clearApplication();
 
         testAuthDataAccess = testService.getAuthDataAccess();
 
@@ -64,8 +65,10 @@ class DataAccessTests {
 
     @Test
     void createUserNeg() throws DataAccessException {
-        testUserDataAccess.createUser(testUserData);
-        testUserDataAccess.createUser(testUserData);
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            testUserDataAccess.createUser(testUserData);
+            testUserDataAccess.createUser(testUserData);
+        });
     }
 
     @Test
@@ -153,6 +156,13 @@ class DataAccessTests {
     }
 
     @Test
+    void clearGamePos() throws DataAccessException {
+        testGameDataAccess.createGame("bob");
+        testGameDataAccess.clear();
+        Assertions.assertNull(testGameDataAccess.getGame(1));
+    }
+
+    @Test
     void getAllGamesNeg() throws DataAccessException {
         testGameDataAccess.createGame("joe");
         GameData testGame = new GameData(1,
@@ -165,24 +175,16 @@ class DataAccessTests {
     }
 
     @Test
-    void clearGamePos() throws DataAccessException {
-        testGameDataAccess.createGame("bob");
-        testGameDataAccess.clear();
-        Assertions.assertNull(testGameDataAccess.getGame(1));
+    void getGameNeg() throws DataAccessException {
+        GameData accessGameData = testGameDataAccess.getGame(1);
+        Assertions.assertNull(accessGameData);
     }
 
     @Test
-    void listGamesPos() throws DataAccessException {
-        AuthData testAuthData = testService.register(testRequest);
-        testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
-        ListGamesResponse listResponse = testService.listGames(new ListGamesRequest(testAuthData.authToken()));
-        GameData testGame = new GameData(1,
-                null,
-                null,
-                "bob",
-                testGameDataAccess.getGame(1).game());
-        // "List.of()" lets me set the ArrayList to that initial value
-        Assertions.assertEquals(new ListGamesResponse(new ArrayList<GameData>(List.of(testGame))), listResponse);
+    void createGameNeg() throws DataAccessException {
+        Assertions.assertThrows(DataAccessException.class, () -> {
+            testGameDataAccess.createGame(null);
+        });
     }
 
     // Come back and potentially add tests once makeMove() is implemented
