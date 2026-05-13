@@ -24,6 +24,11 @@ class DataAccessTests {
     GameDataAccess testGameDataAccess;
     UserData testUserData = new UserData("bob", "bob", "bob");
     AuthData testAuthData = new AuthData("authToken", "bob");
+    GameData testGameData = new GameData(1,
+            null,
+            null,
+            "bobs game",
+            new ChessGame());
     RegisterRequest testRequest = new RegisterRequest("bob", "bob", "bob");
     LoginRequest testLoginRequest = new LoginRequest("bob", "bob");
 
@@ -122,6 +127,33 @@ class DataAccessTests {
         Assertions.assertNotNull(accessAuthData);
     }
 
+    // Game Unit Tests
+    @Test
+    void createGamePos() throws DataAccessException {
+        testGameDataAccess.createGame("bobs game");
+    }
+
+    @Test
+    void getGamePos() throws DataAccessException {
+        testGameDataAccess.createGame("bobs game");
+        GameData accessGameData = testGameDataAccess.getGame(1);
+        Assertions.assertEquals(accessGameData, testGameData);
+    }
+
+
+    
+    @Test
+    void clearGamePos() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+        testUserDataAccess.clear();
+        Assertions.assertNull(testUserDataAccess.getUser(testUserData.username()));
+    }
+
+
+
+
+
+
     @Test
     void clearApplicationPositive() throws DataAccessException {
         AuthData testAuthData = new AuthData("authToken", "bob");
@@ -137,7 +169,6 @@ class DataAccessTests {
         Assertions.assertNull(testAuthDataAccess.getAuth("authToken"));
         Assertions.assertNull(testUserDataAccess.getUser("bob"));
         Assertions.assertNull(testGameDataAccess.getGame(1));
-    }
     }
 
     @Test
