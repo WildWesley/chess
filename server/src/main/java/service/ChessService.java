@@ -82,7 +82,7 @@ public class ChessService {
         if (userData == null) {
             throw new DataAccessException("Error: unauthorized");
         }
-        if (BCrypt.checkpw(loginRequest.password(), userData.password())) {
+        if (!BCrypt.checkpw(loginRequest.password(), userData.password())) {
             throw new DataAccessException("Error: unauthorized");
         }
 

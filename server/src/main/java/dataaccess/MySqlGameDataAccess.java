@@ -52,8 +52,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public CreateGameResponse createGame(String gameName) throws DataAccessException {
-        var statement = "INSERT INTO games (gameID, gameName, game) " +
-                "VALUES (?, ?, ?)";
+        var statement = "INSERT INTO games (gameID, gameName, game) VALUES (?, ?, ?)";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 ChessGame game = new ChessGame();
@@ -73,14 +72,19 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public GameData getGame(int gameID) throws DataAccessException {
-        var statement = "SELECT game FROM users WHERE gameID=?";
+        var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setInt(1, gameID);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
-                    var json = resultSet.getString("json");
-                    return new Gson().fromJson(json, GameData.class);
+                    var json = resultSet.getString("game");
+                    GameData gameData = new GameData(resultSet.getInt("gameID"),
+                            resultSet.getString("whiteUsername"),
+                            resultSet.getString("blackUsername"),
+                            resultSet.getString("gameName"),
+                            new Gson().fromJson(json, ChessGame.class));
+                    return gameData;
                 } else {
                     return null;
                 }
@@ -112,7 +116,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public void clear() throws DataAccessException {
-        var statement = "TRUNCATE TABLE users";
+        var statement = "TRUNCATE TABLE games";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.executeUpdate();
@@ -126,7 +130,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public void updateGameDataWhite(int gameID, String username) throws DataAccessException {
-        var statement = "UPDATE pet SET whiteUsername=? WHERE gameID=?";
+        var statement = "UPDATE games SET whiteUsername=? WHERE gameID=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
@@ -140,7 +144,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public void updateGameDataBlack(int gameID, String username) throws DataAccessException {
-        var statement = "UPDATE pet SET blackUsername=? WHERE gameID=?";
+        var statement = "UPDATE games SET blackUsername=? WHERE gameID=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
