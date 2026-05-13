@@ -47,6 +47,7 @@ public class Server {
             case "Error: bad request" -> ctx.status(400);
             case "Error: unauthorized" -> ctx.status(401);
             case "Error: already taken" -> ctx.status(403);
+            default -> ctx.status(500);
         }
     }
 

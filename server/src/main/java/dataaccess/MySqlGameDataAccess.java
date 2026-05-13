@@ -53,7 +53,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
                 return gameResponse;
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to add to database");
         }
     }
 
@@ -77,7 +77,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to get game");
         }
     }
 
@@ -101,7 +101,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to get games");
         }
     }
 
@@ -113,7 +113,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to clear");
         }
     }
 
@@ -129,7 +129,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to update whiteUsername");
         }
     }
 
@@ -143,7 +143,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to update blackUsername");
         }
     }
 }

@@ -36,7 +36,7 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to add to database");
         }
     }
 
@@ -55,7 +55,7 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to get authentication data");
         }
     }
 
@@ -68,7 +68,7 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to delete authentication data");
         }
     }
 
@@ -80,7 +80,7 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to clear database");
         }
     }
 }

@@ -39,7 +39,7 @@ public class MySqlUserDataAccess implements UserDataAccess {
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to add to database");
         }
     }
 
@@ -59,7 +59,7 @@ public class MySqlUserDataAccess implements UserDataAccess {
                 }
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to get user");
         }
     }
 
@@ -71,7 +71,7 @@ public class MySqlUserDataAccess implements UserDataAccess {
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
-            throw new DataAccessException("Unable to add to database");
+            throw new DataAccessException("Error: unable to clear database");
         }
     }
 }

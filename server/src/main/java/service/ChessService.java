@@ -47,7 +47,7 @@ public class ChessService {
         if (registerRequest.username() == null ||
             registerRequest.password() == null ||
             registerRequest.email() == null) {
-            throw new DataAccessException(("Error: bad request"));
+            throw new DataAccessException("Error: bad request");
         }
 
         UserData response = userDataAccess.getUser(registerRequest.username());
