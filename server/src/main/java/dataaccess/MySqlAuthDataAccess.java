@@ -13,7 +13,7 @@ import java.util.HashMap;
 public class MySqlAuthDataAccess implements AuthDataAccess {
     // String is the authToken
     public MySqlAuthDataAccess() throws DataAccessException {
-        configureDatabase();
+        DatabaseManager.configureDatabase(createStatements);
     }
 
     private final String[] createStatements = {
@@ -25,19 +25,6 @@ public class MySqlAuthDataAccess implements AuthDataAccess {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
-
-
-    private void configureDatabase() throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (Exception ex) {
-            throw new DataAccessException("Unable to configure database");
-        }
-    }
 
     @Override
     public void createAuth(AuthData authData) throws DataAccessException {

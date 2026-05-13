@@ -21,7 +21,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
     private int runningGameID = 1;
 
     public MySqlGameDataAccess() throws DataAccessException {
-        configureDatabase();
+        DatabaseManager.configureDatabase(createStatements);
     }
 
     private final String[] createStatements = {
@@ -36,19 +36,6 @@ public class MySqlGameDataAccess implements GameDataAccess {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
-
-
-    private void configureDatabase() throws DataAccessException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (Exception ex) {
-            throw new DataAccessException("Unable to configure database");
-        }
-    }
 
     @Override
     public CreateGameResponse createGame(String gameName) throws DataAccessException {
