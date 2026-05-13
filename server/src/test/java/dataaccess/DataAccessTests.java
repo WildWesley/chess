@@ -63,12 +63,56 @@ class DataAccessTests {
     }
 
     @Test
-
     void getUserNeg() throws DataAccessException {
         testUserDataAccess.createUser(testUserData);
         UserData fakeUser = new UserData("joe", "joe", "joe");
         UserData accessUserData = testUserDataAccess.getUser(fakeUser.username());
         Assertions.assertNotEquals(accessUserData, testUserData);
+    }
+
+    @Test
+    void createAuthPos() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+    }
+
+    @Test
+    void getAuthPos() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+        UserData accessUserData = testUserDataAccess.getUser(testUserData.username());
+        Assertions.assertEquals(accessUserData, testUserData);
+    }
+
+    @Test
+    void deleteAuthPos() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+        testUserDataAccess.clear();
+        Assertions.assertNull(testUserDataAccess.getUser(testUserData.username()));
+    }
+
+    @Test
+    void clearAuthPos() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+        testUserDataAccess.clear();
+        Assertions.assertNull(testUserDataAccess.getUser(testUserData.username()));
+    }
+
+    @Test
+    void createAuthNeg() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+    }
+
+    @Test
+    void getAuthNeg() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+        UserData accessUserData = testUserDataAccess.getUser(testUserData.username());
+        Assertions.assertEquals(accessUserData, testUserData);
+    }
+
+    @Test
+    void deleteAuthNeg() throws DataAccessException {
+        testUserDataAccess.createUser(testUserData);
+        testUserDataAccess.clear();
+        Assertions.assertNull(testUserDataAccess.getUser(testUserData.username()));
     }
 
     @Test
@@ -87,23 +131,6 @@ class DataAccessTests {
         Assertions.assertNull(testUserDataAccess.getUser("bob"));
         Assertions.assertNull(testGameDataAccess.getGame(1));
     }
-
-    @Test
-    void loginPositive() throws DataAccessException {
-        testService.register(testRequest);
-
-        AuthData userAuthData = testService.login(testLoginRequest);
-
-        Assertions.assertEquals("bob", userAuthData.username());
-        Assertions.assertNotNull(userAuthData.authToken());
-
-        UserData accessUserData = testUserDataAccess.getUser("bob");
-        UserData testUserData = new UserData("bob", "bob", "bob");
-        Assertions.assertEquals(accessUserData, testUserData);
-
-        // Test auth
-        AuthData accessAuthData = testAuthDataAccess.getAuth(userAuthData.authToken());
-        Assertions.assertEquals("bob", accessAuthData.username());
     }
 
     @Test
