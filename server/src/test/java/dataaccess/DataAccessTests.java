@@ -139,49 +139,40 @@ class DataAccessTests {
         GameData accessGameData = testGameDataAccess.getGame(1);
         Assertions.assertEquals(accessGameData, testGameData);
     }
-
-
     
     @Test
-    void clearGamePos() throws DataAccessException {
-        testUserDataAccess.createUser(testUserData);
-        testUserDataAccess.clear();
-        Assertions.assertNull(testUserDataAccess.getUser(testUserData.username()));
+    void getAllGamesPos() throws DataAccessException {
+        testGameDataAccess.createGame("bob");
+        GameData testGame = new GameData(1,
+                null,
+                null,
+                "bob",
+                testGameDataAccess.getGame(1).game());
+        Assertions.assertEquals(new ArrayList<GameData>(testGameDataAccess.getAllGames()),
+                new ArrayList<GameData> (List.of(testGame)));
     }
 
-
-
-
-
+    @Test
+    void getAllGamesNeg() throws DataAccessException {
+        testGameDataAccess.createGame("joe");
+        GameData testGame = new GameData(1,
+                null,
+                null,
+                "bob",
+                testGameDataAccess.getGame(1).game());
+        Assertions.assertNotEquals(new ArrayList<GameData>(testGameDataAccess.getAllGames()),
+                new ArrayList<GameData> (List.of(testGame)));
+    }
 
     @Test
-    void clearApplicationPositive() throws DataAccessException {
-        AuthData testAuthData = new AuthData("authToken", "bob");
-        testAuthDataAccess.createAuth(testAuthData);
-
-        UserData testUserData = new UserData("bob", "bob", "bob");
-        testUserDataAccess.createUser(testUserData);
-
+    void clearGamePos() throws DataAccessException {
         testGameDataAccess.createGame("bob");
-
-        testService.clearApplication();
-
-        Assertions.assertNull(testAuthDataAccess.getAuth("authToken"));
-        Assertions.assertNull(testUserDataAccess.getUser("bob"));
+        testGameDataAccess.clear();
         Assertions.assertNull(testGameDataAccess.getGame(1));
     }
 
     @Test
-    void logoutPositive() throws DataAccessException {
-        testService.register(testRequest);
-        AuthData testAuthData = testService.login(testLoginRequest);
-        testService.logout(new LogoutRequest(testAuthData.authToken()));
-
-        Assertions.assertNull(testAuthDataAccess.getAuth(testAuthData.authToken()));
-    }
-
-    @Test
-    void listGamesPositive() throws DataAccessException {
+    void listGamesPos() throws DataAccessException {
         AuthData testAuthData = testService.register(testRequest);
         testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
         ListGamesResponse listResponse = testService.listGames(new ListGamesRequest(testAuthData.authToken()));
@@ -194,79 +185,5 @@ class DataAccessTests {
         Assertions.assertEquals(new ListGamesResponse(new ArrayList<GameData>(List.of(testGame))), listResponse);
     }
 
-    @Test
-    void createGamePositive() throws DataAccessException {
-        AuthData testAuthData = testService.register(testRequest);
-        CreateGameResponse testGameResponse =
-                testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
-        Assertions.assertEquals(1, testGameResponse.gameID());
-
-        GameData accessGameData = testGameDataAccess.getGame(1);
-        Assertions.assertNotNull(accessGameData);
-    }
-
-    @Test
-    void joinGamePositive() throws DataAccessException {
-        AuthData testAuthData = testService.register(testRequest);
-        CreateGameResponse testGameResponse =
-                testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
-        JoinGameRequest testJoinRequest = new JoinGameRequest("WHITE", 1, testAuthData.authToken());
-        testService.joinGame(testJoinRequest);
-
-        // Assess that game player WHITE is bob
-        Assertions.assertEquals("bob", testGameDataAccess.getGame(1).whiteUsername());
-    }
-
-    @Test
-    void registerFail() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            RegisterRequest testRequest = new RegisterRequest("bob", null, "bob");
-            AuthData testAuthData = testService.register(testRequest);
-        });
-    }
-
-    @Test
-    void loginFail() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            testService.register(testRequest);
-            AuthData userAuthData = testService.login(new LoginRequest("joe", "bob"));
-        });
-    }
-
-    @Test
-    void logoutFail() throws DataAccessException {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            testService.register(testRequest);
-            testService.login(testLoginRequest);
-            testService.logout(new LogoutRequest("authToken"));
-        });
-    }
-
-    @Test
-    void listGamesFail() throws DataAccessException {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            AuthData testAuthData = testService.register(testRequest);
-            testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
-            ListGamesResponse listResponse = testService.listGames(new ListGamesRequest("authToken"));
-        });
-    }
-
-    @Test
-    void createGameFail() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            AuthData testAuthData = testService.register(testRequest);
-            CreateGameResponse testGameResponse =
-                    testService.createGame(new CreateGameRequest("bob", "authToken"));
-        });
-    }
-
-    @Test
-    void joinGameFail() {
-        Assertions.assertThrows(DataAccessException.class, () -> {
-            AuthData testAuthData = testService.register(testRequest);
-            testService.createGame(new CreateGameRequest("bob", testAuthData.authToken()));
-            JoinGameRequest testJoinRequest = new JoinGameRequest("WHITE", 3, testAuthData.authToken());
-            testService.joinGame(testJoinRequest);
-        });
-    }
+    // Come back and potentially add tests once makeMove() is implemented
 }
