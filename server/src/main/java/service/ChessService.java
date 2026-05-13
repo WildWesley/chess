@@ -165,6 +165,7 @@ public class ChessService {
 
         if (joinGameRequest.playerColor().equals("WHITE")) {
             gameDataAccess.updateGameDataWhite(joinGameRequest.gameID(), authData.username());
+            gameData = gameDataAccess.getGame(joinGameRequest.gameID());
         } else {
             gameDataAccess.updateGameDataBlack(joinGameRequest.gameID(), authData.username());
         }

@@ -98,13 +98,17 @@ public class MySqlGameDataAccess implements GameDataAccess {
     public Collection<GameData> getAllGames() throws DataAccessException {
         var gameList = new ArrayList<GameData>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT game FROM games";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet resultSet = ps.executeQuery()) {
                     while (resultSet.next()) {
                         var json = resultSet.getString("game");
-                        GameData game = new Gson().fromJson(json, GameData.class);
-                        gameList.add(game);
+                        GameData gameData = new GameData(resultSet.getInt("gameID"),
+                                resultSet.getString("whiteUsername"),
+                                resultSet.getString("blackUsername"),
+                                resultSet.getString("gameName"),
+                                new Gson().fromJson(json, ChessGame.class));
+                        gameList.add(gameData);
                     }
                     return gameList;
                 }
@@ -135,7 +139,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
                 preparedStatement.setInt(2, gameID);
-                preparedStatement.executeQuery();
+                preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
             throw new DataAccessException("Unable to add to database");
@@ -149,7 +153,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
             try (var preparedStatement = conn.prepareStatement(statement)) {
                 preparedStatement.setString(1, username);
                 preparedStatement.setInt(2, gameID);
-                preparedStatement.executeQuery();
+                preparedStatement.executeUpdate();
             }
         } catch (Exception e) {
             throw new DataAccessException("Unable to add to database");
