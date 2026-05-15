@@ -1,6 +1,5 @@
-package server;
+package Facade;
 
-import Facade.ServerFacadeException;
 import com.google.gson.Gson;
 import model.*;
 
@@ -62,10 +61,11 @@ public class ServerFacade {
         return null;
     }
 
-    public void register(RegisterRequest registerRequest) throws ServerFacadeException {
+    // TODO: Check if I'm doing these returns right? AuthData instead of registerResponse?
+    public AuthData register(RegisterRequest registerRequest) throws ServerFacadeException {
         var request = buildRequest("POST", "/user", registerRequest);
         var response = sendRequest(request);
-        handleResponse(response, null);
+        return handleResponse(response, AuthData.class);
     }
 
     public void clearApplication() throws ServerFacadeException {
@@ -73,40 +73,34 @@ public class ServerFacade {
         sendRequest(request);
     }
 
-    public void login(LoginRequest loginRequest) throws ServerFacadeException {
-        var request = buildRequest("POST", "/session", pet);
+    public AuthData login(LoginRequest loginRequest) throws ServerFacadeException {
+        var request = buildRequest("POST", "/session", loginRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, AuthData.class);
+    }
+
+    public void logout(LoginRequest logoutRequest) throws ServerFacadeException {
+        var request = buildRequest("DELETE", "/session", logoutRequest);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    public void login(LoginRequest loginRequest) throws ServerFacadeException {
-        var request = buildRequest("POST", "/session", pet);
+    public ListGamesResponse listPets(ListGamesRequest listGamesRequest) throws ServerFacadeException {
+        var request = buildRequest("GET", "/game", listGamesRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, ListGamesResponse.class);
+    }
+
+    public CreateGameResponse createGame(CreateGameRequest createGameRequest) throws ServerFacadeException {
+        var request = buildRequest("POST", "/game", createGameRequest);
+        var response = sendRequest(request);
+        return handleResponse(response, CreateGameResponse.class);
+    }
+
+    public void joinGame(JoinGameRequest joinGameRequest) throws ServerFacadeException {
+        var request = buildRequest("POST", "/game", joinGameRequest);
         var response = sendRequest(request);
         handleResponse(response, null);
-    }
-
-    public Pet addPet(Pet pet) throws ResponseException {
-        var request = buildRequest("POST", "/pet", pet);
-        var response = sendRequest(request);
-        return handleResponse(response, Pet.class);
-    }
-
-    public void deletePet(int id) throws ResponseException {
-        var path = String.format("/pet/%s", id);
-        var request = buildRequest("DELETE", path, null);
-        var response = sendRequest(request);
-        handleResponse(response, null);
-    }
-
-    public void deleteAllPets() throws ResponseException {
-        var request = buildRequest("DELETE", "/pet", null);
-        sendRequest(request);
-    }
-
-    public PetList listPets() throws ResponseException {
-        var request = buildRequest("GET", "/pet", null);
-        var response = sendRequest(request);
-        return handleResponse(response, PetList.class);
     }
 
     private boolean isSuccessful(int status) {
