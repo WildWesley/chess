@@ -3,29 +3,22 @@ package client;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import Facade.*;
 import com.google.gson.Gson;
 import model.*;
-import exception.ResponseException;
-import client.websocket.NotificationHandler;
-import server.ServerFacade;
-import client.websocket.WebSocketFacade;
-import webSocketMessages.Notification;
+import ui.*;
 
-import static client.EscapeSequences.*;
-
-public class PetClient implements NotificationHandler {
+public class Client {
     private String visitorName = null;
     private final ServerFacade server;
-    private final WebSocketFacade ws;
     private State state = State.SIGNEDOUT;
 
-    public PetClient(String serverUrl) throws ResponseException {
+    public Client(String serverUrl) throws ServerFacadeException {
         server = new ServerFacade(serverUrl);
-        ws = new WebSocketFacade(serverUrl, this);
     }
 
     public void run() {
-        System.out.println(LOGO + " Welcome to the pet store. Sign in to start.");
+        System.out.println("Welcome to Nate's just super chess server. Sign in to play...");
         System.out.print(help());
 
         Scanner scanner = new Scanner(System.in);
@@ -36,7 +29,7 @@ public class PetClient implements NotificationHandler {
 
             try {
                 result = eval(line);
-                System.out.print(BLUE + result);
+                System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -62,8 +55,8 @@ public class PetClient implements NotificationHandler {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "signin" -> signIn(params);
-                case "rescue" -> rescuePet(params);
+                case "login" -> login(params);
+                case "register" -> rescuePet(params);
                 case "list" -> listPets();
                 case "signout" -> signOut();
                 case "adopt" -> adoptPet(params);
@@ -71,19 +64,41 @@ public class PetClient implements NotificationHandler {
                 case "quit" -> "quit";
                 default -> help();
             };
-        } catch (ResponseException ex) {
+        } catch (ServerFacadeException ex) {
             return ex.getMessage();
         }
     }
 
-    public String signIn(String... params) throws ResponseException {
-        if (params.length >= 1) {
-            state = State.SIGNEDIN;
-            visitorName = String.join("-", params);
-            ws.enterPetShop(visitorName);
-            return String.format("You signed in as %s.", visitorName);
+    public String login(String... params) throws ServerFacadeException {
+        if (params.length >= 2) {
+            try {
+                AuthData loginResponse = server.login(new LoginRequest(params[0], params[1]));
+                if (loginResponse.authToken() != null) {
+                    state = State.SIGNEDIN;
+                    return String.format("Welcome back %s.", loginResponse.username());
+                }
+            } catch (ServerFacadeException e) {
+                throw new ServerFacadeException("Login information incorrect. Expected: 'login <username> <password>'." +
+                        " Please try again or register");
+            }
         }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <yourname>");
+        throw new ServerFacadeException("Login format incorrect. Expected: 'login <username> <password>'");
+    }
+
+    public String register(String... params) throws ServerFacadeException {
+        if (params.length >= 3) {
+            try {
+                AuthData registerResponse = server.register(new RegisterRequest(params[0], params[1], params[2]));
+                if (registerResponse.authToken() != null) {
+                    return String.format("Successfully registered: %s!", registerResponse.username());
+                }
+            } catch (ServerFacadeException e) {
+                throw new ServerFacadeException("Register failed. User information already registered. Try again " +
+                        "using 'register <username> <password> <email>', or if already registered, try logging in.");
+            }
+        }
+        throw new ServerFacadeException("Register format incorrect. Expected: " +
+                "'register <username> <password> <email>'");
     }
 
     public String rescuePet(String... params) throws ResponseException {
