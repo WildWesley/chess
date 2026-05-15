@@ -23,9 +23,13 @@ public class ServerFacadeTests {
         serverFacade.clearApplication();
     }
 
-    @AfterAll
-    static void stopServer() throws ServerFacadeException {
+    @AfterEach
+    void clearServer() throws ServerFacadeException {
         serverFacade.clearApplication();
+    }
+
+    @AfterAll
+    static void stopServer() {
         server.stop();
     }
 

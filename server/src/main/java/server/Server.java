@@ -82,6 +82,7 @@ public class Server {
         }
     }
 
+    // TODO: Ask about getting authorization from header
     public void logout(Context ctx) throws DataAccessException {
         try {
             String authToken = ctx.header("authorization");
