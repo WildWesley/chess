@@ -60,8 +60,7 @@ public class ServerFacade {
 
         return null;
     }
-
-    // TODO: Check if I'm doing these returns right? AuthData instead of registerResponse?
+    
     public AuthData register(RegisterRequest registerRequest) throws ServerFacadeException {
         var request = buildRequest("POST", "/user", registerRequest);
         var response = sendRequest(request);
@@ -79,13 +78,13 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
 
-    public void logout(LoginRequest logoutRequest) throws ServerFacadeException {
+    public void logout(LogoutRequest logoutRequest) throws ServerFacadeException {
         var request = buildRequest("DELETE", "/session", logoutRequest);
         var response = sendRequest(request);
         handleResponse(response, null);
     }
 
-    public ListGamesResponse listPets(ListGamesRequest listGamesRequest) throws ServerFacadeException {
+    public ListGamesResponse listGames(ListGamesRequest listGamesRequest) throws ServerFacadeException {
         var request = buildRequest("GET", "/game", listGamesRequest);
         var response = sendRequest(request);
         return handleResponse(response, ListGamesResponse.class);
