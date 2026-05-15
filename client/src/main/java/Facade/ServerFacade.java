@@ -1,5 +1,6 @@
 package server;
 
+import Facade.ServerFacadeException;
 import com.google.gson.Gson;
 import model.*;
 
@@ -35,23 +36,23 @@ public class ServerFacade {
         }
     }
 
-    private HttpResponse<String> sendRequest(HttpRequest request) throws DataAccessException {
+    private HttpResponse<String> sendRequest(HttpRequest request) throws ServerFacadeException {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (Exception ex) {
-            throw new DataAccessException(DataAccessException.Code.ServerError, ex.getMessage());
+            throw new ServerFacadeException("Server facade exception");
         }
     }
 
-    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
+    private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ServerFacadeException {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
             var body = response.body();
             if (body != null) {
-                throw ResponseException.fromJson(body);
+                throw new ServerFacadeException("Server facade exception");
             }
 
-            throw new ResponseException(ResponseException.fromHttpStatusCode(status), "other failure: " + status);
+            throw new ServerFacadeException("Server facade exception");
         }
 
         if (responseClass != null) {
@@ -61,6 +62,28 @@ public class ServerFacade {
         return null;
     }
 
+    public void register(RegisterRequest registerRequest) throws ServerFacadeException {
+        var request = buildRequest("POST", "/user", registerRequest);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
+    public void clearApplication() throws ServerFacadeException {
+        var request = buildRequest("DELETE", "/db", null);
+        sendRequest(request);
+    }
+
+    public void login(LoginRequest loginRequest) throws ServerFacadeException {
+        var request = buildRequest("POST", "/session", pet);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
+    public void login(LoginRequest loginRequest) throws ServerFacadeException {
+        var request = buildRequest("POST", "/session", pet);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
 
     public Pet addPet(Pet pet) throws ResponseException {
         var request = buildRequest("POST", "/pet", pet);
