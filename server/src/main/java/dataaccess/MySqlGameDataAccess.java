@@ -107,6 +107,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public void clear() throws DataAccessException {
+        runningGameID = 1;
         var statement = "TRUNCATE TABLE games";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {

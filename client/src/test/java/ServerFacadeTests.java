@@ -125,8 +125,8 @@ public class ServerFacadeTests {
         serverFacade.register(testRegisterRequest);
         AuthData loginResponse = serverFacade.login(testLoginRequest);
         serverFacade.createGame(new CreateGameRequest("bob", loginResponse.authToken()));
-        ListGamesResponse listGamesResponse = serverFacade.listGames(new ListGamesRequest(loginResponse.authToken()));
         serverFacade.joinGame(new JoinGameRequest("WHITE", 1, loginResponse.authToken()));
+        ListGamesResponse listGamesResponse = serverFacade.listGames(new ListGamesRequest(loginResponse.authToken()));
         GameData game = listGamesResponse.games().get(0);
         Assertions.assertEquals(loginResponse.username(), game.whiteUsername());
     }
