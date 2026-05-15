@@ -12,6 +12,7 @@ public class Client {
     private String visitorName = null;
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
+    private String authToken = null;
 
     public Client(String serverUrl) throws ServerFacadeException {
         server = new ServerFacade(serverUrl);
@@ -39,11 +40,11 @@ public class Client {
     }
 
 
-    public void notify(Notification notification) {
-        System.out.println(RED + notification.message());
-        printPrompt();
-    }
-
+//    public void notify(Notification notification) {
+//        System.out.println(RED + notification.message());
+//        printPrompt();
+//    }
+//
     private void printPrompt() {
         System.out.print("\n" + RESET + ">>> " + GREEN);
     }
@@ -56,12 +57,13 @@ public class Client {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "login" -> login(params);
-                case "register" -> rescuePet(params);
-                case "list" -> listPets();
-                case "signout" -> signOut();
-                case "adopt" -> adoptPet(params);
-                case "adoptall" -> adoptAllPets();
-                case "quit" -> "quit";
+                case "register" -> register(params);
+                case "logout" -> logout(params);
+//                case "list" -> listPets();
+//                case "signout" -> signOut();
+//                case "adopt" -> adoptPet(params);
+//                case "adoptall" -> adoptAllPets();
+//                case "quit" -> "quit";
                 default -> help();
             };
         } catch (ServerFacadeException ex) {
@@ -69,21 +71,6 @@ public class Client {
         }
     }
 
-    public String login(String... params) throws ServerFacadeException {
-        if (params.length >= 2) {
-            try {
-                AuthData loginResponse = server.login(new LoginRequest(params[0], params[1]));
-                if (loginResponse.authToken() != null) {
-                    state = State.SIGNEDIN;
-                    return String.format("Welcome back %s.", loginResponse.username());
-                }
-            } catch (ServerFacadeException e) {
-                throw new ServerFacadeException("Login information incorrect. Expected: 'login <username> <password>'." +
-                        " Please try again or register");
-            }
-        }
-        throw new ServerFacadeException("Login format incorrect. Expected: 'login <username> <password>'");
-    }
 
     public String register(String... params) throws ServerFacadeException {
         if (params.length >= 3) {
@@ -101,92 +88,56 @@ public class Client {
                 "'register <username> <password> <email>'");
     }
 
-    public String rescuePet(String... params) throws ResponseException {
-        assertSignedIn();
+    public String login(String... params) throws ServerFacadeException {
         if (params.length >= 2) {
-            String name = params[0];
-            PetType type = PetType.valueOf(params[1].toUpperCase());
-            var pet = new Pet(0, name, type);
-            pet = server.addPet(pet);
-            return String.format("You rescued %s. Assigned ID: %d", pet.name(), pet.id());
-        }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <name> <CAT|DOG|FROG>");
-    }
-
-    public String listPets() throws ResponseException {
-        assertSignedIn();
-        PetList pets = server.listPets();
-        var result = new StringBuilder();
-        var gson = new Gson();
-        for (Pet pet : pets) {
-            result.append(gson.toJson(pet)).append('\n');
-        }
-        return result.toString();
-    }
-
-    public String adoptPet(String... params) throws ResponseException {
-        assertSignedIn();
-        if (params.length == 1) {
             try {
-                int id = Integer.parseInt(params[0]);
-                Pet pet = getPet(id);
-                if (pet != null) {
-                    server.deletePet(id);
-                    return String.format("%s says %s", pet.name(), pet.sound());
+                AuthData loginResponse = server.login(new LoginRequest(params[0], params[1]));
+                if (loginResponse.authToken() != null) {
+                    state = State.SIGNEDIN;
+                    authToken = loginResponse.authToken();
+                    return String.format("Welcome back %s.", loginResponse.username());
                 }
-            } catch (NumberFormatException ignored) {
+            } catch (ServerFacadeException e) {
+                throw new ServerFacadeException("Login information incorrect. Expected: 'login <username> <password>'." +
+                        " Please try again or register");
             }
         }
-        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <pet id>");
+        throw new ServerFacadeException("Login format incorrect. Expected: 'login <username> <password>'");
     }
 
-    public String adoptAllPets() throws ResponseException {
-        assertSignedIn();
-        var buffer = new StringBuilder();
-        for (Pet pet : server.listPets()) {
-            buffer.append(String.format("%s says %s%n", pet.name(), pet.sound()));
-        }
-
-        server.deleteAllPets();
-        return buffer.toString();
-    }
-
-    public String signOut() throws ResponseException {
-        assertSignedIn();
-        ws.leavePetShop(visitorName);
-        state = State.SIGNEDOUT;
-        return String.format("%s left the shop", visitorName);
-    }
-
-    private Pet getPet(int id) throws ResponseException {
-        for (Pet pet : server.listPets()) {
-            if (pet.id() == id) {
-                return pet;
+    public String logout(String... params) throws ServerFacadeException {
+        if (authToken != null) {
+            try {
+                server.logout(new LogoutRequest(authToken));
+                state = State.SIGNEDOUT;
+                return "Successfully logged out!";
+            } catch (ServerFacadeException e) {
+                throw new ServerFacadeException("Logout failed.");
             }
         }
-        return null;
+        throw new ServerFacadeException("Must be logged in to perform this action.");
     }
 
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
-                    - signIn <yourname>
-                    - quit
+                    - login <username> <password>
+                    - register <username> <password> <email>
+                    - clear_app
                     """;
         }
         return """
-                - list
-                - adopt <pet id>
-                - rescue <name> <CAT|DOG|FROG|FISH>
-                - adoptAll
-                - signOut
-                - quit
+                - logout
+                - list_games
+                - create_game <game_name>
+                - join_game <game_id> <player_color>
+                - clear_app
                 """;
     }
 
-    private void assertSignedIn() throws ResponseException {
+    private void assertSignedIn() throws ServerFacadeException {
         if (state == State.SIGNEDOUT) {
-            throw new ResponseException(ResponseException.Code.ClientError, "You must sign in");
+            throw new ServerFacadeException("Must be signed in to perform this action.");
         }
     }
 }
