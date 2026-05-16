@@ -216,7 +216,27 @@ public class Client {
     }
 
     public void printBoardBlack() {
+        ChessPosition positionInQuestion;
+        ChessPiece pieceAtPosition;
+        for (int i = 8; i >= 1; i--) {
+            for (int j = 1; j <= 8; j++) {
+                positionInQuestion = new ChessPosition(i, j);
+                pieceAtPosition = starterBoard.getPiece(positionInQuestion);
+                if (whiteSpace(positionInQuestion)) {
+                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_BROWN);
+                } else {
+                    System.out.print(EscapeSequences.SET_BG_COLOR_BROWN);
+                }
 
+                if (pieceAtPosition == null) {
+                    System.out.print(EscapeSequences.EMPTY);
+                } else {
+                    handlePiece(pieceAtPosition);
+                }
+            }
+            System.out.print(EscapeSequences.RESET_BG_COLOR);
+            System.out.print("\n");
+        }
     }
 
     private void assertSignedIn() throws ServerFacadeException {
