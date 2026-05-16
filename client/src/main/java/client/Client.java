@@ -4,18 +4,23 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 import Facade.*;
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import model.*;
 import ui.*;
 
 public class Client {
-    private String visitorName = null;
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
-    private String authToken = null;
+    private AuthData loginData = null;
+    private ChessBoard starterBoard = new ChessBoard();
 
     public Client(String serverUrl) throws ServerFacadeException {
         server = new ServerFacade(serverUrl);
+        starterBoard.resetBoard();
     }
 
     public void run() {
@@ -29,6 +34,7 @@ public class Client {
             String line = scanner.nextLine();
 
             try {
+                printBoardWhite();
                 result = eval(line);
                 System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
@@ -46,7 +52,7 @@ public class Client {
 //    }
 //
     private void printPrompt() {
-        System.out.print("\n" + RESET + ">>> " + GREEN);
+        System.out.print("\n" + EscapeSequences.RESET_TEXT_COLOR + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
     }
 
 
@@ -63,14 +69,13 @@ public class Client {
 //                case "signout" -> signOut();
 //                case "adopt" -> adoptPet(params);
 //                case "adoptall" -> adoptAllPets();
-//                case "quit" -> "quit";
+                case "quit" -> "quit";
                 default -> help();
             };
         } catch (ServerFacadeException ex) {
             return ex.getMessage();
         }
     }
-
 
     public String register(String... params) throws ServerFacadeException {
         if (params.length >= 3) {
@@ -94,7 +99,7 @@ public class Client {
                 AuthData loginResponse = server.login(new LoginRequest(params[0], params[1]));
                 if (loginResponse.authToken() != null) {
                     state = State.SIGNEDIN;
-                    authToken = loginResponse.authToken();
+                    loginData = loginResponse;
                     return String.format("Welcome back %s.", loginResponse.username());
                 }
             } catch (ServerFacadeException e) {
@@ -106,9 +111,9 @@ public class Client {
     }
 
     public String logout(String... params) throws ServerFacadeException {
-        if (authToken != null) {
+        if (loginData.authToken() != null) {
             try {
-                server.logout(new LogoutRequest(authToken));
+                server.logout(new LogoutRequest(loginData.authToken()));
                 state = State.SIGNEDOUT;
                 return "Successfully logged out!";
             } catch (ServerFacadeException e) {
@@ -123,7 +128,7 @@ public class Client {
             return """
                     - login <username> <password>
                     - register <username> <password> <email>
-                    - clear_app
+                    - quit
                     """;
         }
         return """
@@ -131,8 +136,86 @@ public class Client {
                 - list_games
                 - create_game <game_name>
                 - join_game <game_id> <player_color>
-                - clear_app
                 """;
+    }
+
+    public boolean whiteSpace(ChessPosition position) {
+        return (position.getRow() + position.getColumn()) % 2 == 1;
+    }
+
+    public String handleWhitePiece(ChessPiece piece) {
+        String output = "";
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            output = EscapeSequences.WHITE_PAWN;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            output = EscapeSequences.WHITE_KING;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+            output = EscapeSequences.WHITE_QUEEN;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
+            output = EscapeSequences.WHITE_BISHOP;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+            output = EscapeSequences.WHITE_KNIGHT;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+            output = EscapeSequences.WHITE_ROOK;
+        }
+        return output;
+    }
+
+    public String handleBlackPiece(ChessPiece piece) {
+        String output = "";
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+            output = EscapeSequences.BLACK_PAWN;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            output = EscapeSequences.BLACK_KING;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
+            output = EscapeSequences.BLACK_QUEEN;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
+            output = EscapeSequences.BLACK_BISHOP;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
+            output = EscapeSequences.BLACK_KNIGHT;
+        } else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
+            output = EscapeSequences.BLACK_ROOK;
+        }
+        return output;
+    }
+
+    public void handlePiece(ChessPiece piece) {
+        String output = "";
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            output = handleWhitePiece(piece);
+        } else {
+            output = handleBlackPiece(piece);
+        }
+        System.out.print(output);
+    }
+
+    // Important to remember that when adding up i and j, if they are odd, it's light,
+    // and if they're even, it's dark
+    public void printBoardWhite() {
+        ChessPosition positionInQuestion;
+        ChessPiece pieceAtPosition;
+        for (int i = 8; i >= 1; i--) {
+            for (int j = 1; j <= 8; j++) {
+                positionInQuestion = new ChessPosition(i, j);
+                pieceAtPosition = starterBoard.getPiece(positionInQuestion);
+                if (whiteSpace(positionInQuestion)) {
+                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_BROWN);
+                } else {
+                    System.out.print(EscapeSequences.SET_BG_COLOR_BROWN);
+                }
+
+                if (pieceAtPosition == null) {
+                    System.out.print("   ");
+                } else {
+                    handlePiece(pieceAtPosition);
+                }
+            }
+            System.out.print("\n");
+        }
+    }
+
+    public void printBoardBlack() {
+
     }
 
     private void assertSignedIn() throws ServerFacadeException {
