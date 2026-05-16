@@ -123,6 +123,46 @@ public class Client {
         throw new ServerFacadeException("Must be logged in to perform this action.");
     }
 
+    public String listGames(String... params) throws ServerFacadeException {
+        if (loginData.authToken() != null) {
+            try {
+                String output = "Ongoing Games...\n";
+                int gameCount = 1;
+                ListGamesResponse listGamesResponse = server.listGames(new ListGamesRequest(loginData.authToken()));
+                for (GameData game : listGamesResponse.games()) {
+                    output = output + String.format("%d.\n\tGame Name: %s\n\tWhite Player: %s\n\tBlack Player: %s\n",
+                            gameCount,
+                            game.gameName(),
+                            game.whiteUsername(),
+                            game.blackUsername());
+                    gameCount++;
+                }
+                return output;
+            } catch (ServerFacadeException e) {
+                throw new ServerFacadeException("List games failed.");
+            }
+        }
+        throw new ServerFacadeException("Must be logged in to perform this action.");
+    }
+
+    public String createGame(String... params) throws ServerFacadeException {
+        if (loginData.authToken() != null) {
+            if (params.length >= 1) {
+                try {
+                    CreateGameResponse createGameResponse = server.createGame(new CreateGameRequest(params[0],
+                            loginData.authToken()));
+                    return String.format("Game successfully created! Game ID: %d\n", createGameResponse.gameID());
+                } catch (ServerFacadeException e) {
+                    throw new ServerFacadeException("New game information incorrect. Expected: 'create_game <game_name>'" +
+                            ". Please try again.");
+                }
+            }
+            throw new ServerFacadeException("New game information incorrect. Expected: 'create_game <game_name>'.");
+        } else {
+            throw new ServerFacadeException("Must be logged in to perform this action.");
+        }
+    }
+
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
@@ -135,7 +175,8 @@ public class Client {
                 - logout
                 - list_games
                 - create_game <game_name>
-                - join_game <game_id> <player_color>
+                - play_game <game_id> <player_color>
+                - observe_game <game_id>
                 """;
     }
 
@@ -143,25 +184,7 @@ public class Client {
         return (position.getRow() + position.getColumn()) % 2 == 1;
     }
 
-    public String handleWhitePiece(ChessPiece piece) {
-        String output = "";
-        if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            output = EscapeSequences.BLACK_PAWN;
-        } else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-            output = EscapeSequences.BLACK_KING;
-        } else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
-            output = EscapeSequences.BLACK_QUEEN;
-        } else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
-            output = EscapeSequences.BLACK_BISHOP;
-        } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
-            output = EscapeSequences.BLACK_KNIGHT;
-        } else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
-            output = EscapeSequences.BLACK_ROOK;
-        }
-        return output;
-    }
-
-    public String handleBlackPiece(ChessPiece piece) {
+    public String printPieces(ChessPiece piece) {
         String output = "";
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
             output = EscapeSequences.BLACK_PAWN;
@@ -182,13 +205,14 @@ public class Client {
     public void handlePiece(ChessPiece piece) {
         String output;
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            output = EscapeSequences.SET_TEXT_COLOR_WHITE + handleWhitePiece(piece);
+            output = EscapeSequences.SET_TEXT_COLOR_WHITE + printPieces(piece);
         } else {
-            output = EscapeSequences.SET_TEXT_COLOR_BLACK + handleBlackPiece(piece);
+            output = EscapeSequences.SET_TEXT_COLOR_BLACK + printPieces(piece);
         }
         System.out.print(output);
     }
 
+    // TODO: Get help creating boarder of board
     // Important to remember that when adding up i and j, if they are odd, it's light,
     // and if they're even, it's dark
     public void printBoardWhite() {
