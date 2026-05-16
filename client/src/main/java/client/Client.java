@@ -1,5 +1,6 @@
 package client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -17,6 +18,7 @@ public class Client {
     private State state = State.SIGNEDOUT;
     private AuthData loginData = null;
     private ChessBoard starterBoard = new ChessBoard();
+    private ArrayList<GameData> mostRecentlyListedGames = null;
 
     public Client(String serverUrl) throws ServerFacadeException {
         server = new ServerFacade(serverUrl);
@@ -65,8 +67,8 @@ public class Client {
                 case "login" -> login(params);
                 case "register" -> register(params);
                 case "logout" -> logout(params);
-//                case "list" -> listPets();
-//                case "signout" -> signOut();
+                case "list_games" -> listGames(params);
+                case "create_game" -> createGame(params);
 //                case "adopt" -> adoptPet(params);
 //                case "adoptall" -> adoptAllPets();
                 case "quit" -> "quit";
@@ -137,6 +139,7 @@ public class Client {
                             game.blackUsername());
                     gameCount++;
                 }
+                mostRecentlyListedGames = listGamesResponse.games();
                 return output;
             } catch (ServerFacadeException e) {
                 throw new ServerFacadeException("List games failed.");
@@ -158,6 +161,56 @@ public class Client {
                 }
             }
             throw new ServerFacadeException("New game information incorrect. Expected: 'create_game <game_name>'.");
+        } else {
+            throw new ServerFacadeException("Must be logged in to perform this action.");
+        }
+    }
+
+    public int getGameIDGivenGameNumber(Integer gameNumber, String authToken) throws ServerFacadeException {
+        if (mostRecentlyListedGames == null) {
+            ListGamesResponse listGamesResponse = server.listGames(new ListGamesRequest(loginData.authToken()));
+            mostRecentlyListedGames = listGamesResponse.games();
+        }
+        return mostRecentlyListedGames.get(gameNumber - 1).gameID();
+    }
+
+    public String playGame(String... params) throws ServerFacadeException {
+        if (loginData.authToken() != null) {
+            if (params.length >= 2) {
+                try {
+                    server.joinGame(new JoinGameRequest(params[1],
+                            getGameIDGivenGameNumber(Integer.parseInt(params[0]), loginData.authToken()),
+                            loginData.authToken()));
+                    state = State.PLAYINGGAME;
+                    return String.format("Game successfully joined! Game Number: %s\n", params[0]);
+                } catch (ServerFacadeException e) {
+                    throw new ServerFacadeException("Failed to join game. Expected: 'play_game <game_number> " +
+                            "<player_color>'. Please try again.");
+                }
+            }
+            throw new ServerFacadeException("New game information incorrect. Expected: 'play_game <game_number> " +
+                    "<player_color>'. Please try again.");
+        } else {
+            throw new ServerFacadeException("Must be logged in to perform this action.");
+        }
+    }
+
+    public String observeGame(String... params) throws ServerFacadeException {
+        if (loginData.authToken() != null) {
+            if (params.length >= 1) {
+                try {
+                    server.joinGame(new JoinGameRequest(params[1],
+                            getGameIDGivenGameNumber(Integer.parseInt(params[0]), loginData.authToken()),
+                            loginData.authToken()));
+                    state = State.OBSERVINGGAME;
+                    return String.format("Game successfully joined! Game Number: %s\n", params[0]);
+                } catch (ServerFacadeException e) {
+                    throw new ServerFacadeException("Failed to join game. Expected: 'observe_game <game_number>'. " +
+                            "Please try again.");
+                }
+            }
+            throw new ServerFacadeException("New game information incorrect. Expected: 'play_game <game_number>'. " +
+                    "Please try again.");
         } else {
             throw new ServerFacadeException("Must be logged in to perform this action.");
         }
