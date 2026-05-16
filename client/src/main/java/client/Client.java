@@ -146,17 +146,17 @@ public class Client {
     public String handleWhitePiece(ChessPiece piece) {
         String output = "";
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            output = EscapeSequences.WHITE_PAWN;
+            output = EscapeSequences.BLACK_PAWN;
         } else if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-            output = EscapeSequences.WHITE_KING;
+            output = EscapeSequences.BLACK_KING;
         } else if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
-            output = EscapeSequences.WHITE_QUEEN;
+            output = EscapeSequences.BLACK_QUEEN;
         } else if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
-            output = EscapeSequences.WHITE_BISHOP;
+            output = EscapeSequences.BLACK_BISHOP;
         } else if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
-            output = EscapeSequences.WHITE_KNIGHT;
+            output = EscapeSequences.BLACK_KNIGHT;
         } else if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
-            output = EscapeSequences.WHITE_ROOK;
+            output = EscapeSequences.BLACK_ROOK;
         }
         return output;
     }
@@ -182,9 +182,9 @@ public class Client {
     public void handlePiece(ChessPiece piece) {
         String output;
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            output = handleWhitePiece(piece);
+            output = EscapeSequences.SET_TEXT_COLOR_WHITE + handleWhitePiece(piece);
         } else {
-            output = handleBlackPiece(piece);
+            output = EscapeSequences.SET_TEXT_COLOR_BLACK + handleBlackPiece(piece);
         }
         System.out.print(output);
     }
@@ -218,8 +218,8 @@ public class Client {
     public void printBoardBlack() {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
-        for (int i = 8; i >= 1; i--) {
-            for (int j = 1; j <= 8; j++) {
+        for (int i = 1; i <= 8; i++) {
+            for (int j = 8; j >= 1; j--) {
                 positionInQuestion = new ChessPosition(i, j);
                 pieceAtPosition = starterBoard.getPiece(positionInQuestion);
                 if (whiteSpace(positionInQuestion)) {
