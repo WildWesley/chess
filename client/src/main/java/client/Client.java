@@ -180,7 +180,7 @@ public class Client {
     }
 
     public void handlePiece(ChessPiece piece) {
-        String output = "";
+        String output;
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             output = handleWhitePiece(piece);
         } else {
@@ -205,11 +205,12 @@ public class Client {
                 }
 
                 if (pieceAtPosition == null) {
-                    System.out.print("   ");
+                    System.out.print(EscapeSequences.EMPTY);
                 } else {
                     handlePiece(pieceAtPosition);
                 }
             }
+            System.out.print(EscapeSequences.RESET_BG_COLOR);
             System.out.print("\n");
         }
     }
