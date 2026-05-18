@@ -275,6 +275,22 @@ public class Client {
         System.out.print(output);
     }
 
+    public void printSpace(int row, int col) {
+        ChessPosition positionInQuestion = new ChessPosition(row, col);
+        ChessPiece pieceAtPosition = starterBoard.getPiece(positionInQuestion);
+        if (whiteSpace(positionInQuestion)) {
+            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_BROWN);
+        } else {
+            System.out.print(EscapeSequences.SET_BG_COLOR_BROWN);
+        }
+
+        if (pieceAtPosition == null) {
+            System.out.print(EscapeSequences.EMPTY);
+        } else {
+            handlePiece(pieceAtPosition);
+        }
+    }
+
     // Important to remember that when adding up i and j, if they are odd, it's light,
     // and if they're even, it's dark
     public void printBoardWhite() {
@@ -294,19 +310,7 @@ public class Client {
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
                     Integer.toString(i) + " ");
             for (int j = 1; j <= 8; j++) {
-                positionInQuestion = new ChessPosition(i, j);
-                pieceAtPosition = starterBoard.getPiece(positionInQuestion);
-                if (whiteSpace(positionInQuestion)) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_BROWN);
-                } else {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_BROWN);
-                }
-
-                if (pieceAtPosition == null) {
-                    System.out.print(EscapeSequences.EMPTY);
-                } else {
-                    handlePiece(pieceAtPosition);
-                }
+                printSpace(i, j);
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
@@ -337,19 +341,7 @@ public class Client {
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
                     Integer.toString(i) + " ");
             for (int j = 8; j >= 1; j--) {
-                positionInQuestion = new ChessPosition(i, j);
-                pieceAtPosition = starterBoard.getPiece(positionInQuestion);
-                if (whiteSpace(positionInQuestion)) {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_BROWN);
-                } else {
-                    System.out.print(EscapeSequences.SET_BG_COLOR_BROWN);
-                }
-
-                if (pieceAtPosition == null) {
-                    System.out.print(EscapeSequences.EMPTY);
-                } else {
-                    handlePiece(pieceAtPosition);
-                }
+                printSpace(i, j);
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
