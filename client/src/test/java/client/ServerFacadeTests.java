@@ -1,3 +1,5 @@
+package client;
+
 import facade.ServerFacade;
 import facade.ServerFacadeException;
 import model.*;
