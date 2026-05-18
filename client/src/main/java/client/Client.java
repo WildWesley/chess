@@ -279,14 +279,14 @@ public class Client {
         System.out.print(output);
     }
 
-    // TODO: Get help creating boarder of board
     // Important to remember that when adding up i and j, if they are odd, it's light,
     // and if they're even, it's dark
     public void printBoardWhite() {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
         ArrayList<String> top_bottom_rows =
-                new ArrayList<>(Arrays.asList("", "a", "b", "c", "d", "e", "f", "g", "h", "", "\n"));
+                new ArrayList<>(Arrays.asList("", "a", "b", "c", "d", "e", "f", "g", "h", "",
+                        EscapeSequences.RESET_BG_COLOR + "\n"));
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK);
         for (String col : top_bottom_rows) {
             System.out.print(col);
@@ -316,6 +316,7 @@ public class Client {
             System.out.print(EscapeSequences.RESET_BG_COLOR);
             System.out.print("\n");
         }
+        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
         for (String col : top_bottom_rows) {
             System.out.print(col);
         }
@@ -324,7 +325,17 @@ public class Client {
     public void printBoardBlack() {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
+        ArrayList<String> top_bottom_rows =
+                new ArrayList<>(Arrays.asList("", "a", "b", "c", "d", "e", "f", "g", "h", "",
+                        EscapeSequences.RESET_BG_COLOR + "\n"));
+        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK);
+        for (String col : top_bottom_rows) {
+            System.out.print(col);
+        }
         for (int i = 1; i <= 8; i++) {
+            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
+                    EscapeSequences.SET_TEXT_COLOR_BLACK +
+                    Integer.toString(i));
             for (int j = 8; j >= 1; j--) {
                 positionInQuestion = new ChessPosition(i, j);
                 pieceAtPosition = starterBoard.getPiece(positionInQuestion);
@@ -340,14 +351,15 @@ public class Client {
                     handlePiece(pieceAtPosition);
                 }
             }
+            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
+                    EscapeSequences.SET_TEXT_COLOR_BLACK +
+                    Integer.toString(i));
             System.out.print(EscapeSequences.RESET_BG_COLOR);
             System.out.print("\n");
         }
-    }
-
-    private void assertSignedIn() throws ServerFacadeException {
-        if (state == State.SIGNEDOUT) {
-            throw new ServerFacadeException("Must be signed in to perform this action.");
+        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
+        for (String col : top_bottom_rows) {
+            System.out.print(col);
         }
     }
 }
