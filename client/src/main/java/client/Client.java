@@ -4,19 +4,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-import Facade.*;
+import facade.*;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPosition;
-import com.google.gson.Gson;
 import model.*;
 import ui.*;
 
 public class Client {
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
-    private ChessGame.TeamColor player_color = null;
+    private ChessGame.TeamColor playerColor = null;
     private AuthData loginData = null;
     private ChessBoard starterBoard = new ChessBoard();
     private ArrayList<GameData> mostRecentlyListedGames = null;
@@ -41,7 +40,7 @@ public class Client {
                 if (state == State.OBSERVINGGAME) {
                     printBoardWhite();
                 } else if (state == State.PLAYINGGAME) {
-                    if (player_color == ChessGame.TeamColor.WHITE) {
+                    if (playerColor == ChessGame.TeamColor.WHITE) {
                         printBoardWhite();
                     } else {
                         printBoardBlack();
@@ -56,16 +55,9 @@ public class Client {
         System.out.println();
     }
 
-
-//    public void notify(Notification notification) {
-//        System.out.println(RED + notification.message());
-//        printPrompt();
-//    }
-//
     private void printPrompt() {
         System.out.print("\n" + EscapeSequences.RESET_TEXT_COLOR + ">>> " + EscapeSequences.SET_TEXT_COLOR_GREEN);
     }
-
 
     public String eval(String input) {
         try {
@@ -80,8 +72,6 @@ public class Client {
                 case "create_game" -> createGame(params);
                 case "play_game" -> playGame(params);
                 case "observe_game" -> observeGame(params);
-//                case "adopt" -> adoptPet(params);
-//                case "adoptall" -> adoptAllPets();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -116,8 +106,8 @@ public class Client {
                     return String.format("Welcome back %s.", loginResponse.username());
                 }
             } catch (ServerFacadeException e) {
-                throw new ServerFacadeException("Login information incorrect. Expected: 'login <username> <password>'." +
-                        " Please try again or register");
+                throw new ServerFacadeException("Login information incorrect. Expected: " +
+                        "'login <username> <password>'. Please try again or register");
             }
         }
         throw new ServerFacadeException("Login format incorrect. Expected: 'login <username> <password>'");
@@ -167,8 +157,8 @@ public class Client {
                             loginData.authToken()));
                     return "Game successfully created!";
                 } catch (ServerFacadeException e) {
-                    throw new ServerFacadeException("New game information incorrect. Expected: 'create_game <game_name>'" +
-                            ". Please try again.");
+                    throw new ServerFacadeException("New game information incorrect. Expected: " +
+                            "'create_game <game_name>'. Please try again.");
                 }
             }
             throw new ServerFacadeException("New game information incorrect. Expected: 'create_game <game_name>'.");
@@ -198,17 +188,17 @@ public class Client {
                             getGameIDGivenGameNumber(Integer.parseInt(params[0])),
                             loginData.authToken()));
                     state = State.PLAYINGGAME;
-                    player_color = switch(params[1].toUpperCase()) {
+                    playerColor = switch(params[1].toUpperCase()) {
                         case "WHITE" -> ChessGame.TeamColor.WHITE;
                         default -> ChessGame.TeamColor.BLACK;};
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                 } catch (ServerFacadeException e) {
                     throw new ServerFacadeException("Failed to join game. Expected: 'play_game <game_number> " +
-                            "<player_color>'. Please try again. Use list_games to get updated valid game_number's.");
+                            "<playerColor>'. Please try again. Use list_games to get updated valid game_number's.");
                 }
             } else {
                 throw new ServerFacadeException("New game information incorrect. Expected: 'play_game <game_number> " +
-                        "<player_color>'. Please try again.");
+                        "<playerColor>'. Please try again.");
             }
         } else {
             throw new ServerFacadeException("Must be logged in to perform this action.");
@@ -248,7 +238,7 @@ public class Client {
                 - logout
                 - list_games
                 - create_game <game_name>
-                - play_game <game_id> <player_color>
+                - play_game <game_id> <playerColor>
                 - observe_game <game_id>
                 """;
     }
@@ -290,12 +280,13 @@ public class Client {
     public void printBoardWhite() {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
-        ArrayList<String> top_bottom_rows =
-                new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " a\u2003", " b\u2003", " c\u2003", " d\u2003", " e\u2003", " f\u2003", " g\u2003", " h\u2003",
+        ArrayList<String> boardLetters =
+                new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " a\u2003", " b\u2003", " c\u2003", " d\u2003",
+                        " e\u2003", " f\u2003", " g\u2003", " h\u2003",
                         EscapeSequences.EMPTY,
                         EscapeSequences.RESET_BG_COLOR + "\n"));
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK);
-        for (String col : top_bottom_rows) {
+        for (String col : boardLetters) {
             System.out.print(col);
         }
         for (int i = 8; i >= 1; i--) {
@@ -324,7 +315,7 @@ public class Client {
             System.out.print("\n");
         }
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-        for (String col : top_bottom_rows) {
+        for (String col : boardLetters) {
             System.out.print(col);
         }
     }
@@ -332,12 +323,13 @@ public class Client {
     public void printBoardBlack() {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
-        ArrayList<String> top_bottom_rows =
-                new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " h\u2003", " g\u2003", " f\u2003", " e\u2003", " d\u2003", " c\u2003", " b\u2003",  " a\u2003",
+        ArrayList<String> boardLetters =
+                new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " h\u2003", " g\u2003", " f\u2003", " e\u2003",
+                        " d\u2003", " c\u2003", " b\u2003",  " a\u2003",
                         EscapeSequences.EMPTY,
                         EscapeSequences.RESET_BG_COLOR + "\n"));
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK);
-        for (String col : top_bottom_rows) {
+        for (String col : boardLetters) {
             System.out.print(col);
         }
         for (int i = 1; i <= 8; i++) {
@@ -366,7 +358,7 @@ public class Client {
             System.out.print("\n");
         }
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY);
-        for (String col : top_bottom_rows) {
+        for (String col : boardLetters) {
             System.out.print(col);
         }
     }

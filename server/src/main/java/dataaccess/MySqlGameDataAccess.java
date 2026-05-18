@@ -18,7 +18,6 @@ import java.util.HashMap;
 // be switched between the two.
 public class MySqlGameDataAccess implements GameDataAccess {
     // String is the authToken
-    // TODO: Figure out how to make this store in the database so that it's always unique
     private int runningGameID;
 
     public MySqlGameDataAccess() throws DataAccessException {

@@ -1,5 +1,5 @@
-import Facade.ServerFacade;
-import Facade.ServerFacadeException;
+import facade.ServerFacade;
+import facade.ServerFacadeException;
 import model.*;
 import org.junit.jupiter.api.*;
 import server.Server;
