@@ -178,11 +178,16 @@ public class Client {
     }
 
     public int getGameIDGivenGameNumber(Integer gameNumber) throws ServerFacadeException {
-        if (mostRecentlyListedGames == null) {
-            ListGamesResponse listGamesResponse = server.listGames(new ListGamesRequest(loginData.authToken()));
-            mostRecentlyListedGames = listGamesResponse.games();
+        try {
+            if (mostRecentlyListedGames == null) {
+                ListGamesResponse listGamesResponse = server.listGames(new ListGamesRequest(loginData.authToken()));
+                mostRecentlyListedGames = listGamesResponse.games();
+            }
+            return mostRecentlyListedGames.get(gameNumber - 1).gameID();
+        } catch (Exception e) {
+            throw new ServerFacadeException("Game number does not match listed games. " +
+                    "Use list_games to get updated listed games.");
         }
-        return mostRecentlyListedGames.get(gameNumber - 1).gameID();
     }
 
     public String playGame(String... params) throws ServerFacadeException {
@@ -199,7 +204,7 @@ public class Client {
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                 } catch (ServerFacadeException e) {
                     throw new ServerFacadeException("Failed to join game. Expected: 'play_game <game_number> " +
-                            "<player_color>'. Please try again.");
+                            "<player_color>'. Please try again. Use list_games to get updated valid game_number's.");
                 }
             } else {
                 throw new ServerFacadeException("New game information incorrect. Expected: 'play_game <game_number> " +
