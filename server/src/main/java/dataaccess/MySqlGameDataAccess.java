@@ -22,7 +22,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     public MySqlGameDataAccess() throws DataAccessException {
         DatabaseManager.configureDatabase(createStatements);
-        runningGameID = getDatabaseSize();
+        runningGameID = getDatabaseSize() + 1;
     }
 
     private final String[] createStatements = {

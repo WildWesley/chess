@@ -50,13 +50,10 @@ public class ServerFacade {
 
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ServerFacadeException {
         var status = response.statusCode();
+        ServerFacadeException exception;
         if (!isSuccessful(status)) {
-            var body = response.body();
-            if (body != null) {
-                throw new ServerFacadeException("Server facade exception");
-            }
-
-            throw new ServerFacadeException("Server facade exception");
+            exception = new ServerFacadeException("Server facade exception");
+            exception.addErrorCode(status);
         }
 
         if (responseClass != null) {

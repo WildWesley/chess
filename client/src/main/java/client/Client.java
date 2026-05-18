@@ -85,6 +85,8 @@ public class Client {
             try {
                 AuthData registerResponse = server.register(new RegisterRequest(params[0], params[1], params[2]));
                 if (registerResponse.authToken() != null) {
+                    state = State.SIGNEDIN;
+                    loginData = registerResponse;
                     return String.format("Successfully registered: %s!", registerResponse.username());
                 }
             } catch (ServerFacadeException e) {
@@ -184,15 +186,27 @@ public class Client {
         if (loginData.authToken() != null) {
             if (params.length >= 2) {
                 try {
-                    server.joinGame(new JoinGameRequest(params[1].toUpperCase(),
-                            getGameIDGivenGameNumber(Integer.parseInt(params[0])),
-                            loginData.authToken()));
+                    try {
+                        server.joinGame(new JoinGameRequest(params[1].toUpperCase(),
+                                getGameIDGivenGameNumber(Integer.parseInt(params[0])),
+                                loginData.authToken()));
+                    } catch (Exception e) {
+                        throw new ServerFacadeException("Game number must be a number.");
+                    }
                     state = State.PLAYINGGAME;
-                    playerColor = switch(params[1].toUpperCase()) {
-                        case "WHITE" -> ChessGame.TeamColor.WHITE;
-                        default -> ChessGame.TeamColor.BLACK;};
+                    if (params[1].equalsIgnoreCase("WHITE")) {
+                        playerColor = ChessGame.TeamColor.WHITE;
+                    } else if (params[1].equalsIgnoreCase("BLACK")) {
+                        playerColor = ChessGame.TeamColor.BLACK;
+                    } else {
+                        throw new ServerFacadeException("Invalid player color. Try 'WHITE' or 'BLACK'.");
+                    }
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                 } catch (ServerFacadeException e) {
+                    if (e.error_code == 403) {
+                        throw new ServerFacadeException("Player color taken. Use list_games to get updated player " +
+                                "colors.");
+                    }
                     throw new ServerFacadeException("Failed to join game. Expected: 'play_game <game_number> " +
                             "<playerColor>'. Please try again. Use list_games to get updated valid game_number's.");
                 }
@@ -209,12 +223,15 @@ public class Client {
         if (loginData.authToken() != null) {
             if (params.length >= 1) {
                 try {
-                    server.joinGame(new JoinGameRequest(params[1].toUpperCase(),
-                            getGameIDGivenGameNumber(Integer.parseInt(params[0])),
-                            loginData.authToken()));
-                    state = State.OBSERVINGGAME;
-                    return String.format("Game successfully joined! Game Number: %s\n", params[0]);
-                } catch (ServerFacadeException e) {
+                    int gameNum = Integer.parseInt(params[0]);
+                    if (gameNum < mostRecentlyListedGames.size()) {
+                        state = State.OBSERVINGGAME;
+                        return String.format("Game successfully joined! Game Number: %s\n", params[0]);
+                    } else {
+                        throw new ServerFacadeException("Game number invalid. Use list_games to see valid " +
+                                "game_numbers.");
+                    }
+                } catch (Exception e) {
                     throw new ServerFacadeException("Failed to join game. Expected: 'observe_game <game_number>'. " +
                             "Please try again.");
                 }
