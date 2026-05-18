@@ -203,7 +203,7 @@ public class Client {
                     state = State.PLAYINGGAME;
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                 } catch (ServerFacadeException e) {
-                    if (e.error_code == 403) {
+                    if (e.errorCode == 403) {
                         throw new ServerFacadeException("Player color taken. Use list_games to get updated player " +
                                 "colors.");
                     }

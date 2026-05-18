@@ -8,6 +8,6 @@ public class ServerFacadeException extends Exception{
     public ServerFacadeException(String message, Throwable ex) {
         super(message, ex);
     }
-    public int error_code;
-    public void addErrorCode(int code) {error_code = code;}
+    public int errorCode;
+    public void addErrorCode(int code) {errorCode = code;}
 }
