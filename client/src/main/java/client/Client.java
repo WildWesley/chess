@@ -201,9 +201,10 @@ public class Client {
                     throw new ServerFacadeException("Failed to join game. Expected: 'play_game <game_number> " +
                             "<player_color>'. Please try again.");
                 }
+            } else {
+                throw new ServerFacadeException("New game information incorrect. Expected: 'play_game <game_number> " +
+                        "<player_color>'. Please try again.");
             }
-            throw new ServerFacadeException("New game information incorrect. Expected: 'play_game <game_number> " +
-                    "<player_color>'. Please try again.");
         } else {
             throw new ServerFacadeException("Must be logged in to perform this action.");
         }
@@ -285,7 +286,8 @@ public class Client {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
         ArrayList<String> top_bottom_rows =
-                new ArrayList<>(Arrays.asList("", "a", "b", "c", "d", "e", "f", "g", "h", "",
+                new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " a\u2003", " b\u2003", " c\u2003", " d\u2003", " e\u2003", " f\u2003", " g\u2003", " h\u2003",
+                        EscapeSequences.EMPTY,
                         EscapeSequences.RESET_BG_COLOR + "\n"));
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK);
         for (String col : top_bottom_rows) {
@@ -293,8 +295,8 @@ public class Client {
         }
         for (int i = 8; i >= 1; i--) {
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
-                    EscapeSequences.SET_TEXT_COLOR_BLACK +
-                    Integer.toString(i));
+                    EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
+                    Integer.toString(i) + " ");
             for (int j = 1; j <= 8; j++) {
                 positionInQuestion = new ChessPosition(i, j);
                 pieceAtPosition = starterBoard.getPiece(positionInQuestion);
@@ -311,8 +313,8 @@ public class Client {
                 }
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
-                    EscapeSequences.SET_TEXT_COLOR_BLACK +
-                    Integer.toString(i));
+                    EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
+                    Integer.toString(i) + " ");
             System.out.print(EscapeSequences.RESET_BG_COLOR);
             System.out.print("\n");
         }
@@ -326,7 +328,8 @@ public class Client {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
         ArrayList<String> top_bottom_rows =
-                new ArrayList<>(Arrays.asList("", "a", "b", "c", "d", "e", "f", "g", "h", "",
+                new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " h\u2003", " g\u2003", " f\u2003", " e\u2003", " d\u2003", " c\u2003", " b\u2003",  " a\u2003",
+                        EscapeSequences.EMPTY,
                         EscapeSequences.RESET_BG_COLOR + "\n"));
         System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK);
         for (String col : top_bottom_rows) {
@@ -334,8 +337,8 @@ public class Client {
         }
         for (int i = 1; i <= 8; i++) {
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
-                    EscapeSequences.SET_TEXT_COLOR_BLACK +
-                    Integer.toString(i));
+                    EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
+                    Integer.toString(i) + " ");
             for (int j = 8; j >= 1; j--) {
                 positionInQuestion = new ChessPosition(i, j);
                 pieceAtPosition = starterBoard.getPiece(positionInQuestion);
@@ -352,8 +355,8 @@ public class Client {
                 }
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
-                    EscapeSequences.SET_TEXT_COLOR_BLACK +
-                    Integer.toString(i));
+                    EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
+                    Integer.toString(i) + " ");
             System.out.print(EscapeSequences.RESET_BG_COLOR);
             System.out.print("\n");
         }
