@@ -285,12 +285,16 @@ public class Client {
     public void printBoardWhite() {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
-        String[] top_bottom_rows = {"", "a", "b", "c", "d", "e", "f", "g", "h", ""};
-        System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+        ArrayList<String> top_bottom_rows =
+                new ArrayList<>(Arrays.asList("", "a", "b", "c", "d", "e", "f", "g", "h", "", "\n"));
+        System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY + EscapeSequences.SET_TEXT_COLOR_BLACK);
         for (String col : top_bottom_rows) {
             System.out.print(col);
         }
         for (int i = 8; i >= 1; i--) {
+            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
+                    EscapeSequences.SET_TEXT_COLOR_BLACK +
+                    Integer.toString(i));
             for (int j = 1; j <= 8; j++) {
                 positionInQuestion = new ChessPosition(i, j);
                 pieceAtPosition = starterBoard.getPiece(positionInQuestion);
@@ -306,8 +310,14 @@ public class Client {
                     handlePiece(pieceAtPosition);
                 }
             }
+            System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
+                    EscapeSequences.SET_TEXT_COLOR_BLACK +
+                    Integer.toString(i));
             System.out.print(EscapeSequences.RESET_BG_COLOR);
             System.out.print("\n");
+        }
+        for (String col : top_bottom_rows) {
+            System.out.print(col);
         }
     }
 
