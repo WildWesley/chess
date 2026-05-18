@@ -193,7 +193,6 @@ public class Client {
                     } catch (Exception e) {
                         throw new ServerFacadeException("Game number must be a number.");
                     }
-                    state = State.PLAYINGGAME;
                     if (params[1].equalsIgnoreCase("WHITE")) {
                         playerColor = ChessGame.TeamColor.WHITE;
                     } else if (params[1].equalsIgnoreCase("BLACK")) {
@@ -201,6 +200,7 @@ public class Client {
                     } else {
                         throw new ServerFacadeException("Invalid player color. Try 'WHITE' or 'BLACK'.");
                     }
+                    state = State.PLAYINGGAME;
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                 } catch (ServerFacadeException e) {
                     if (e.error_code == 403) {
