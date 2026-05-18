@@ -16,6 +16,7 @@ import ui.*;
 public class Client {
     private final ServerFacade server;
     private State state = State.SIGNEDOUT;
+    private ChessGame.TeamColor player_color = null;
     private AuthData loginData = null;
     private ChessBoard starterBoard = new ChessBoard();
     private ArrayList<GameData> mostRecentlyListedGames = null;
@@ -36,8 +37,16 @@ public class Client {
             String line = scanner.nextLine();
 
             try {
-                printBoardWhite();
                 result = eval(line);
+                if (state == State.OBSERVINGGAME) {
+                    printBoardWhite();
+                } else if (state == State.PLAYINGGAME) {
+                    if (player_color == ChessGame.TeamColor.WHITE) {
+                        printBoardWhite();
+                    } else {
+                        printBoardBlack();
+                    }
+                }
                 System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -184,6 +193,9 @@ public class Client {
                             getGameIDGivenGameNumber(Integer.parseInt(params[0])),
                             loginData.authToken()));
                     state = State.PLAYINGGAME;
+                    player_color = switch(params[1].toUpperCase()) {
+                        case "WHITE" -> ChessGame.TeamColor.WHITE;
+                        default -> ChessGame.TeamColor.BLACK;};
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                 } catch (ServerFacadeException e) {
                     throw new ServerFacadeException("Failed to join game. Expected: 'play_game <game_number> " +
@@ -273,6 +285,11 @@ public class Client {
     public void printBoardWhite() {
         ChessPosition positionInQuestion;
         ChessPiece pieceAtPosition;
+        String[] top_bottom_rows = {"", "a", "b", "c", "d", "e", "f", "g", "h", ""};
+        System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREY);
+        for (String col : top_bottom_rows) {
+            System.out.print(col);
+        }
         for (int i = 8; i >= 1; i--) {
             for (int j = 1; j <= 8; j++) {
                 positionInQuestion = new ChessPosition(i, j);

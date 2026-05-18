@@ -18,10 +18,12 @@ import java.util.HashMap;
 // be switched between the two.
 public class MySqlGameDataAccess implements GameDataAccess {
     // String is the authToken
-    private int runningGameID = 1;
+    // TODO: Figure out how to make this store in the database so that it's always unique
+    private int runningGameID;
 
     public MySqlGameDataAccess() throws DataAccessException {
         DatabaseManager.configureDatabase(createStatements);
+        runningGameID = getDatabaseSize();
     }
 
     private final String[] createStatements = {
@@ -36,6 +38,20 @@ public class MySqlGameDataAccess implements GameDataAccess {
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
+
+    private int getDatabaseSize() throws DataAccessException {
+        var statement = "SELECT COUNT(*) FROM games";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                ResultSet resultSet = preparedStatement.executeQuery();
+                resultSet.next();
+                // Apparently the 1 makes sure you're grabbing the first column
+                return resultSet.getInt(1);
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: unable to add to database");
+        }
+    }
 
     @Override
     public CreateGameResponse createGame(String gameName) throws DataAccessException {
