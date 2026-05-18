@@ -69,6 +69,8 @@ public class Client {
                 case "logout" -> logout(params);
                 case "list_games" -> listGames(params);
                 case "create_game" -> createGame(params);
+                case "play_game" -> playGame(params);
+                case "observe_game" -> observeGame(params);
 //                case "adopt" -> adoptPet(params);
 //                case "adoptall" -> adoptAllPets();
                 case "quit" -> "quit";
@@ -154,7 +156,7 @@ public class Client {
                 try {
                     CreateGameResponse createGameResponse = server.createGame(new CreateGameRequest(params[0],
                             loginData.authToken()));
-                    return String.format("Game successfully created! Game ID: %d\n", createGameResponse.gameID());
+                    return "Game successfully created!";
                 } catch (ServerFacadeException e) {
                     throw new ServerFacadeException("New game information incorrect. Expected: 'create_game <game_name>'" +
                             ". Please try again.");
@@ -166,7 +168,7 @@ public class Client {
         }
     }
 
-    public int getGameIDGivenGameNumber(Integer gameNumber, String authToken) throws ServerFacadeException {
+    public int getGameIDGivenGameNumber(Integer gameNumber) throws ServerFacadeException {
         if (mostRecentlyListedGames == null) {
             ListGamesResponse listGamesResponse = server.listGames(new ListGamesRequest(loginData.authToken()));
             mostRecentlyListedGames = listGamesResponse.games();
@@ -178,8 +180,8 @@ public class Client {
         if (loginData.authToken() != null) {
             if (params.length >= 2) {
                 try {
-                    server.joinGame(new JoinGameRequest(params[1],
-                            getGameIDGivenGameNumber(Integer.parseInt(params[0]), loginData.authToken()),
+                    server.joinGame(new JoinGameRequest(params[1].toUpperCase(),
+                            getGameIDGivenGameNumber(Integer.parseInt(params[0])),
                             loginData.authToken()));
                     state = State.PLAYINGGAME;
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
@@ -199,8 +201,8 @@ public class Client {
         if (loginData.authToken() != null) {
             if (params.length >= 1) {
                 try {
-                    server.joinGame(new JoinGameRequest(params[1],
-                            getGameIDGivenGameNumber(Integer.parseInt(params[0]), loginData.authToken()),
+                    server.joinGame(new JoinGameRequest(params[1].toUpperCase(),
+                            getGameIDGivenGameNumber(Integer.parseInt(params[0])),
                             loginData.authToken()));
                     state = State.OBSERVINGGAME;
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
