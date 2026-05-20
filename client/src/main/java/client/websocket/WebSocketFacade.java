@@ -1,10 +1,10 @@
 package client.websocket;
 
+import facade.ServerFacadeException;
 import com.google.gson.Gson;
-import exception.ResponseException;
 import jakarta.websocket.*;
-import webSocketMessages.Action;
-import webSocketMessages.Notification;
+import websocket.messages.Action;
+import websocket.messages.Notification;
 
 import java.io.IOException;
 import java.net.URI;
@@ -16,7 +16,7 @@ public class WebSocketFacade extends Endpoint {
     Session session;
     NotificationHandler notificationHandler;
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ServerFacadeException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -33,8 +33,8 @@ public class WebSocketFacade extends Endpoint {
                     notificationHandler.notify(notification);
                 }
             });
-        } catch (DeploymentException | IOException | URISyntaxException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        } catch (Exception ex) {
+            throw new ServerFacadeException("Error: websocket initialization failed.");
         }
     }
 
@@ -43,21 +43,66 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void enterPetShop(String visitorName) throws ResponseException {
+    public void newPlayer(String playerName) throws ServerFacadeException {
         try {
-            var action = new Action(Action.Type.ENTER, visitorName);
+            var action = new Action(Action.Type.ENTER, playerName);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        } catch (Exception ex) {
+            throw new ServerFacadeException("Error: unable to notify of new player.");
         }
     }
 
-    public void leavePetShop(String visitorName) throws ResponseException {
+    public void newObserver(String observerName) throws ServerFacadeException {
         try {
-            var action = new Action(Action.Type.EXIT, visitorName);
+            var action = new Action(Action.Type.ENTER, observerName);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+        } catch (Exception ex) {
+            throw new ServerFacadeException("Error: unable to notify of new observer.");
+        }
+    }
+
+    public void moveMade(String playerName) throws ServerFacadeException {
+        try {
+            var action = new Action(Action.Type.ENTER, String.format("%s made a move", playerName));
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (Exception ex) {
+            throw new ServerFacadeException("Error: unable to notify of move made.");
+        }
+    }
+
+    public void leftGame(String playerName) throws ServerFacadeException {
+        try {
+            var action = new Action(Action.Type.ENTER, playerName);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (Exception ex) {
+            throw new ServerFacadeException("Error: unable to notify of player leaving.");
+        }
+    }
+
+    public void playerResigned(String playerName) throws ServerFacadeException {
+        try {
+            var action = new Action(Action.Type.ENTER, playerName);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (Exception ex) {
+            throw new ServerFacadeException("Error: unable to notify of player resigning.");
+        }
+    }
+
+    public void playerInCheck(String playerName) throws ServerFacadeException {
+        try {
+            var action = new Action(Action.Type.ENTER, playerName);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (Exception ex) {
+            throw new ServerFacadeException("Error: unable to notify of player in check.");
+        }
+    }
+
+    public void playerInCheckmate(String playerName) throws ServerFacadeException {
+        try {
+            var action = new Action(Action.Type.ENTER, playerName);
+            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+        } catch (Exception ex) {
+            throw new ServerFacadeException("Error: unable to notify of player in checkmate.");
         }
     }
 
