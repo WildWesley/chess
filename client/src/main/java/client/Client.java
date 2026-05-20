@@ -11,6 +11,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
 import ui.*;
+import websocket.messages.Notification;
 
 public class Client {
     private final ServerFacade server;
@@ -250,14 +251,28 @@ public class Client {
                     - register <username> <password> <email>
                     - quit
                     """;
+        } else if (state == State.SIGNEDIN) {
+            return """
+                    - logout
+                    - list_games
+                    - create_game <game_name>
+                    - play_game <game_id> <playerColor>
+                    - observe_game <game_id>
+                    """;
+        } else if (state == State.PLAYINGGAME) {
+            return """
+                    - redraw_board
+                    - leave_game
+                    - make_move <current_position> <new_position>
+                    - resign
+                    - highlight_moves <current_position>
+                    """;
+        } else {
+            return """
+                    - redraw_board
+                    - leave_game
+                    """;
         }
-        return """
-                - logout
-                - list_games
-                - create_game <game_name>
-                - play_game <game_id> <playerColor>
-                - observe_game <game_id>
-                """;
     }
 
     public boolean whiteSpace(ChessPosition position) {
@@ -370,5 +385,10 @@ public class Client {
         for (String col : boardLetters) {
             System.out.print(col);
         }
+    }
+
+    public void notify(Notification notification) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.message());
+        printPrompt();
     }
 }
