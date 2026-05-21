@@ -3,8 +3,10 @@ package client.websocket;
 import facade.ServerFacadeException;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
+import websocket.commands.UserGameCommand;
 import websocket.messages.Action;
 import websocket.messages.Notification;
+import chess.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -61,9 +63,10 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void moveMade(String playerName) throws ServerFacadeException {
+    public void moveMade(ChessMove move, String authToken, int gameID) throws ServerFacadeException {
         try {
-            var action = new Action(Action.Type.ENTER, String.format("%s made a move", playerName));
+            var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,
+                    authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (Exception ex) {
             throw new ServerFacadeException("Error: unable to notify of move made.");

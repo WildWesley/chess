@@ -1,6 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import model.*;
 
 import java.util.Collection;
@@ -39,6 +40,11 @@ public class MemoryGameDataAccess implements GameDataAccess {
     @Override
     public void clear() throws DataAccessException {
         gameDatas.clear();
+    }
+
+    @Override
+    public void updateGameData(int gameID, ChessMove move) {
+        return;
     }
 
     @Override

@@ -263,7 +263,7 @@ public class Client {
             return """
                     - redraw_board
                     - leave_game
-                    - make_move <current_position> <new_position>
+                    - make_move <current_position> <new_position> <promotion_piece>
                     - resign
                     - highlight_moves <current_position>
                     """;
@@ -271,6 +271,7 @@ public class Client {
             return """
                     - redraw_board
                     - leave_game
+                    - highlight_moves <current_position>
                     """;
         }
     }
@@ -390,5 +391,12 @@ public class Client {
     public void notify(Notification notification) {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.message());
         printPrompt();
+    }
+
+    // Create methods for the new playing and observing UI commands
+    public void makeMove(String... params) {
+        // Parse the string params to get an old chess position, a new chess position, and a promotion piece
+        // Convert that into a ChessMove datatype
+        //
     }
 }

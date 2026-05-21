@@ -1,17 +1,16 @@
 package dataaccess;
 
 import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import model.CreateGameResponse;
 import model.GameData;
-import model.UserData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 // MemoryGameDataAccess holds the hashmap that is used to store all the game data on the server with the GameData
 // record type. It implements the UserDataAccess interface so that when database implementation is added, it can easily
@@ -133,7 +132,29 @@ public class MySqlGameDataAccess implements GameDataAccess {
         }
     }
 
-    // UPDATE pet SET name = 'fido' WHERE id = 1
+    // TODO: Update GameData
+    @Override
+    public void updateGameData(int gameID, ChessMove move) throws DataAccessException {
+        GameData currentGameData = getGame(gameID);
+        ChessGame currentGame = currentGameData.game();
+        try {
+            currentGame.makeMove(move);
+        } catch (Exception e) {
+            throw new DataAccessException("Invalid move");
+        }
+        var statement = "UPDATE games SET game=? WHERE gameID=?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                ChessGame game = new ChessGame();
+                String json = new Gson().toJson(game);
+                preparedStatement.setString(1, json);
+                preparedStatement.setInt(2, gameID);
+                preparedStatement.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: unable to update game");
+        }
+    }
 
     @Override
     public void updateGameDataWhite(int gameID, String username) throws DataAccessException {

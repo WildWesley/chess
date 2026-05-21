@@ -6,8 +6,11 @@ import dataaccess.MemoryAuthDataAccess;
 import io.javalin.*;
 import io.javalin.http.Context;
 import model.*;
+import server.websocket.WebSocketHandler;
+import websocket.*;
 import service.ChessService;
 
+import javax.xml.crypto.Data;
 import java.util.ArrayList;
 
 // The server takes in the URL from the client and determines what request is being made
@@ -15,11 +18,15 @@ import java.util.ArrayList;
 public class Server {
     private final ChessService service;
     private final Javalin javalin;
+    private final WebSocketHandler webSocketHandler;
 
     // This constructor sets up the javalin URLs which interact with each of the handlers. By using different requests
     // such as post, delete, get, and put, different endpoints can share the same URL, simplifying URL structure.
     public Server() {
         this.service = new ChessService();
+
+        webSocketHandler = new WebSocketHandler(this.service);
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::register)
                 .delete("/db", this::clearApplication)
@@ -30,12 +37,9 @@ public class Server {
                 .put("/game", this::joinGame)
                 .get("/echo/{msg}", ctx -> ctx.result("HTTP response: " + ctx.pathParam("msg")))
                 .ws("/ws", ws -> {
-                    ws.onConnect(ctx -> {
-                        ctx.enableAutomaticPings();
-                        System.out.println("Websocket connected");
-                    });
-                    ws.onMessage(ctx -> ctx.send("WebSocket response:" + ctx.message()));
-                    ws.onClose(_ -> System.out.println("Websocket closed"));
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
                 });
     }
 
@@ -58,6 +62,10 @@ public class Server {
             case "Error: already taken" -> ctx.status(403);
             default -> ctx.status(500);
         }
+    }
+
+    private void handleWebsocketMessages(Context ctx) throws DataAccessException {
+
     }
 
     // These are the various handlers. Depending on what request is being made, one of these will be called, which will

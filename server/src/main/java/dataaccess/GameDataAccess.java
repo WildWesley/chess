@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessMove;
 import model.CreateGameRequest;
 import model.CreateGameResponse;
 import model.GameData;
@@ -14,6 +15,8 @@ public interface GameDataAccess {
     Collection<GameData> getAllGames() throws DataAccessException;
 
     void clear() throws DataAccessException;
+
+    void updateGameData(int gameID, ChessMove move) throws DataAccessException;
 
     void updateGameDataWhite(int gameID, String username) throws DataAccessException;
 

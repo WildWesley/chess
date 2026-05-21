@@ -14,11 +14,13 @@ import java.util.Objects;
 public class ChessGame {
     TeamColor teamTurn;
     ChessBoard board;
+    boolean gameOver;
 
     public ChessGame() {
         this.board = new ChessBoard();
         board.resetBoard();
         teamTurn = TeamColor.WHITE;
+        gameOver = false;
     }
 
     /**
@@ -250,10 +252,12 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
        if (isInCheck(teamColor)) {
-           return noValidMoves(teamColor);
-       } else {
-            return false;
+           if (noValidMoves(teamColor)) {
+               gameOver = true;
+               return true;
+           }
        }
+       return false;
         // Check if isInCheck() is true
         // Loop through the whole board and grab all piece positions
         // Loop through white pieces and check if each piece has any valid moves
