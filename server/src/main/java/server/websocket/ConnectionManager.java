@@ -1,8 +1,8 @@
 package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ErrorMessage;
 import websocket.messages.Notification;
-import websocket.commands.UserGameCommand;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,14 +27,10 @@ public class ConnectionManager {
     }
 
     // TODO: singleSend(authToken) method that sends to a session
-    public void singleSend(Session excludeSession, Notification notification) throws IOException {
-        String msg = notification.toString();
-        for (Session c : connections.get(gameID)) {
-            if (c.isOpen()) {
-                if (!c.equals(excludeSession)) {
-                    c.getRemote().sendString(msg);
-                }
-            }
+    public void singleSend(Session session, @org.jetbrains.annotations.UnknownNullability ErrorMessage errorMessage) throws IOException {
+        String msg = errorMessage.toString();
+        if (session.isOpen()) {
+            session.getRemote().sendString(msg);
         }
     }
 
