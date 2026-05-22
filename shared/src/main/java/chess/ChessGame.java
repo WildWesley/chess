@@ -152,6 +152,10 @@ public class ChessGame {
         // Change team turn
     }
 
+    public void resign() {
+        gameOver = true;
+    }
+
     /**
      * @return the ArrayLists for white and then black pieces in an ArrayList
      */

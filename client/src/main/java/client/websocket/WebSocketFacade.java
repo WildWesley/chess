@@ -84,9 +84,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void playerResigned(String playerName) throws ServerFacadeException {
+    public void playerResigned(String authToken, int gameID) throws ServerFacadeException {
         try {
-            var action = new Action(Action.Type.ENTER, playerName);
+            var action = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (Exception ex) {
             throw new ServerFacadeException("Error: unable to notify of player resigning.");

@@ -2,6 +2,7 @@ package client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 
 import chess.*;
@@ -456,23 +457,19 @@ public class Client implements NotificationHandler{
         if (state == State.PLAYINGGAME) {
             if (!consideringResigning) {
                 consideringResigning = true;
+                return "You are considering resigning";
             } else {
                 try {
                     if (params.length >= 1) {
-                        ChessPiece.PieceType promotionPiece;
-                        switch (params[2]) {
-                            case "Q" -> promotionPiece = ChessPiece.PieceType.QUEEN;
-                            case "R" -> promotionPiece = ChessPiece.PieceType.ROOK;
-                            case "N" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
-                            case "B" -> promotionPiece = ChessPiece.PieceType.BISHOP;
-                            default -> promotionPiece = null;
+                        if (Objects.equals(params[0], "yes")) {
+                            websocket.playerResigned(loginData.authToken(), gameID);
+                            return "Successfully resigned.";
+                        } else {
+                            consideringResigning = false;
+                            return "Resign canceled.";
                         }
-                        ChessMove move = new ChessMove(new ChessPosition(translateLetter(params[0].charAt(0)), params[0].charAt(1)),
-                                new ChessPosition(translateLetter(params[0].charAt(0)), params[0].charAt(1)),
-                                promotionPiece);
-
-                        websocket.moveMade(move, loginData.authToken(), gameID);
-                        return "Move successful.";
+                    } else {
+                        throw new ServerFacadeException("Error: did not respond yes/no");
                     }
                 } catch (Exception e) {
                     throw new ServerFacadeException(e.getMessage());
@@ -481,6 +478,7 @@ public class Client implements NotificationHandler{
         } else {
             throw new ServerFacadeException("Error: Invalid move format. Use make_move <start_position> " +
                     "<end_position> <promotion_piece>. Ex: 'make_move e2 e4 none'.");
+        }
     }
 
     public String redrawBoard() {
