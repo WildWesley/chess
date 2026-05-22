@@ -121,6 +121,10 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        if (gameOver) {
+            throw new InvalidMoveException("Error: The game is over. No more moves can be made.");
+        }
+
         ChessPiece originalPiece = board.getPiece(move.getStartPosition());
         ChessPiece pieceTaken;
         ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) validMoves(move.getStartPosition());
@@ -133,6 +137,9 @@ public class ChessGame {
                teamTurn = TeamColor.BLACK;
            } else {
                teamTurn = TeamColor.WHITE;
+           }
+           if (isInCheckmate(teamTurn) || isInStalemate(teamTurn)) {
+               gameOver = true;
            }
         } else {
             throw new InvalidMoveException();

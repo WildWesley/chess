@@ -4,8 +4,7 @@ import facade.ServerFacadeException;
 import com.google.gson.Gson;
 import jakarta.websocket.*;
 import websocket.commands.UserGameCommand;
-import websocket.messages.Action;
-import websocket.messages.Notification;
+import websocket.messages.*;
 import chess.*;
 
 import java.io.IOException;
@@ -31,8 +30,19 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    Notification notification = new Gson().fromJson(message, Notification.class);
-                    notificationHandler.notify(notification);
+                    ServerMessage msg = new Gson().fromJson(message, ServerMessage.class);
+                    if (msg.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+                        Notification notification = new Gson().fromJson(message, Notification.class);
+                        notificationHandler.notify(notification);
+                    } else if (msg.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+                        ErrorMessage errorMsg = new Gson().fromJson(message, ErrorMessage.class);
+                        // TODO: Create a notifyError method in client AND NotifcationHandler to handle error messages
+                        notificationHandler.notifyError(errorMsg);
+                    } else if (msg.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+                        // TODO: Create a loadGame method in client AND NotificationHandler to call draw_board method
+                        LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
+                        notificationHandler.loadGame(loadGameMessage.getGame());
+                    }
                 }
             });
         } catch (Exception ex) {
@@ -67,9 +77,13 @@ public class WebSocketFacade extends Endpoint {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,
                     authToken, gameID, move);
+
+
+
+
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (Exception ex) {
-            throw new ServerFacadeException("Error: unable to notify of move made.");
+            throw new ServerFacadeException(ex.getMessage());
         }
     }
 

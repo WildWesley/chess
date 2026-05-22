@@ -140,13 +140,13 @@ public class MySqlGameDataAccess implements GameDataAccess {
         try {
             currentGame.makeMove(move);
         } catch (Exception e) {
-            throw new DataAccessException("Invalid move");
+            throw new DataAccessException("Error: Invalid move. Use highlight_moves <piece_position> to see all valid " +
+                    "moves for that piece.");
         }
         var statement = "UPDATE games SET game=? WHERE gameID=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
-                ChessGame game = new ChessGame();
-                String json = new Gson().toJson(game);
+                String json = new Gson().toJson(currentGame);
                 preparedStatement.setString(1, json);
                 preparedStatement.setInt(2, gameID);
                 preparedStatement.executeUpdate();

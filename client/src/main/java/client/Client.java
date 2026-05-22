@@ -4,25 +4,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+import chess.*;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 import facade.*;
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
 import model.*;
 import ui.*;
+import websocket.messages.ErrorMessage;
 import websocket.messages.Notification;
 
-public class Client {
+public class Client implements NotificationHandler{
     private final ServerFacade server;
+    private final WebSocketFacade websocket;
     private State state = State.SIGNEDOUT;
     private ChessGame.TeamColor playerColor = null;
     private AuthData loginData = null;
+    private Integer gameID = null;
     private ChessBoard starterBoard = new ChessBoard();
     private ArrayList<GameData> mostRecentlyListedGames = null;
 
     public Client(String serverUrl) throws ServerFacadeException {
         server = new ServerFacade(serverUrl);
+        websocket = new WebSocketFacade(serverUrl, this);
         starterBoard.resetBoard();
     }
 
@@ -38,7 +41,7 @@ public class Client {
 
             try {
                 result = eval(line);
-                if (state == State.OBSERVINGGAME) {
+                if (state == State.OBSERVINGGAME && ) {
                     printBoardWhite();
                 } else if (state == State.PLAYINGGAME) {
                     if (playerColor == ChessGame.TeamColor.WHITE) {
@@ -74,6 +77,7 @@ public class Client {
                 case "play_game" -> playGame(params);
                 case "observe_game" -> observeGame(params);
                 case "quit" -> "quit";
+                case "make_move" -> makeMove(params);
                 default -> help();
             };
         } catch (ServerFacadeException ex) {
@@ -191,6 +195,7 @@ public class Client {
                         server.joinGame(new JoinGameRequest(params[1].toUpperCase(),
                                 getGameIDGivenGameNumber(Integer.parseInt(params[0])),
                                 loginData.authToken()));
+                        gameID = getGameIDGivenGameNumber(Integer.parseInt(params[0]));
                     } catch (Exception e) {
                         throw new ServerFacadeException("Game number must be a number.");
                     }
@@ -263,7 +268,7 @@ public class Client {
             return """
                     - redraw_board
                     - leave_game
-                    - make_move <current_position> <new_position> <promotion_piece>
+                    - make_move <current_position> <new_position> <promotion_piece (Q/R/N/B/none)>
                     - resign
                     - highlight_moves <current_position>
                     """;
@@ -308,9 +313,9 @@ public class Client {
         System.out.print(output);
     }
 
-    public void printSpace(int row, int col) {
+    public void printSpace(ChessBoard board, int row, int col) {
         ChessPosition positionInQuestion = new ChessPosition(row, col);
-        ChessPiece pieceAtPosition = starterBoard.getPiece(positionInQuestion);
+        ChessPiece pieceAtPosition = board.getPiece(positionInQuestion);
         if (whiteSpace(positionInQuestion)) {
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_BROWN);
         } else {
@@ -326,9 +331,8 @@ public class Client {
 
     // Important to remember that when adding up i and j, if they are odd, it's light,
     // and if they're even, it's dark
-    public void printBoardWhite() {
-        ChessPosition positionInQuestion;
-        ChessPiece pieceAtPosition;
+    public void printBoardWhite(ChessGame game) {
+        ChessBoard board = game.getBoard();
         ArrayList<String> boardLetters =
                 new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " a\u2003", " b\u2003", " c\u2003", " d\u2003",
                         " e\u2003", " f\u2003", " g\u2003", " h\u2003",
@@ -343,7 +347,7 @@ public class Client {
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
                     Integer.toString(i) + " ");
             for (int j = 1; j <= 8; j++) {
-                printSpace(i, j);
+                printSpace(board, i, j);
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
@@ -357,9 +361,8 @@ public class Client {
         }
     }
 
-    public void printBoardBlack() {
-        ChessPosition positionInQuestion;
-        ChessPiece pieceAtPosition;
+    public void printBoardBlack(ChessGame game) {
+        ChessBoard board = game.getBoard();
         ArrayList<String> boardLetters =
                 new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " h\u2003", " g\u2003", " f\u2003", " e\u2003",
                         " d\u2003", " c\u2003", " b\u2003",  " a\u2003",
@@ -374,7 +377,7 @@ public class Client {
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
                     Integer.toString(i) + " ");
             for (int j = 8; j >= 1; j--) {
-                printSpace(i, j);
+                printSpace(board, i, j);
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
@@ -388,15 +391,88 @@ public class Client {
         }
     }
 
+    private int translateLetter(char col) throws ServerFacadeException {
+        switch (col) {
+            case 'a' -> {
+                return 1;
+            }
+            case 'b' -> {
+                return 2;
+            }
+            case 'c' -> {
+                return 3;
+            }
+            case 'd' -> {
+                return 4;
+            }
+            case 'e' -> {
+                return 5;
+            }
+            case 'f' -> {
+                return 6;
+            }
+            case 'g' -> {
+                return 7;
+            }
+            case 'h' -> {
+                return 8;
+            }
+            default -> {
+                throw new ServerFacadeException("Error: Invalid move format. Use make_move <start_position> " +
+                        "<end_position> <promotion_piece>. Ex: 'make_move e2 e4 none'.");
+            }
+        }
+    }
+
+    // e2 e4 none
+    public String makeMove(String... params) throws ServerFacadeException {
+        if (state == State.PLAYINGGAME) {
+            if (params.length >= 3) {
+                try {
+                    ChessPiece.PieceType promotionPiece;
+                    switch (params[2]) {
+                        case "Q" -> promotionPiece = ChessPiece.PieceType.QUEEN;
+                        case "R" -> promotionPiece = ChessPiece.PieceType.ROOK;
+                        case "N" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
+                        case "B" -> promotionPiece = ChessPiece.PieceType.BISHOP;
+                        default -> promotionPiece = null;
+                    }
+                    ChessMove move = new ChessMove(new ChessPosition(translateLetter(params[0].charAt(0)), params[0].charAt(1)),
+                            new ChessPosition(translateLetter(params[0].charAt(0)), params[0].charAt(1)),
+                            promotionPiece);
+
+                    websocket.moveMade(move, loginData.authToken(), gameID);
+                    return "Move successful.";
+                } catch (Exception e) {
+                    throw new ServerFacadeException(e.getMessage());
+                }
+            } else {
+                throw new ServerFacadeException("Error: Invalid move format. Use make_move <start_position> " +
+                        "<end_position> <promotion_piece>. Ex: 'make_move e2 e4 none'.");
+            }
+        } else {
+            throw new ServerFacadeException("Error: Must be playing a game to perform this action.");
+        }
+    }
+
+    @Override
     public void notify(Notification notification) {
-        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.message());
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.getMessage());
         printPrompt();
     }
 
-    // Create methods for the new playing and observing UI commands
-    public void makeMove(String... params) {
-        // Parse the string params to get an old chess position, a new chess position, and a promotion piece
-        // Convert that into a ChessMove datatype
-        //
+    @Override
+    public void notifyError(ErrorMessage errorMessage) {
+        System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + errorMessage.getMessage());
+        printPrompt();
+    }
+
+    @Override
+    public void loadGame(ChessGame game) {
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            printBoardWhite(game);
+        } else {
+            printBoardBlack(game);
+        }
     }
 }

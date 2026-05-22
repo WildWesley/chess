@@ -127,6 +127,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 gameDataAccess.updateGameData(gameID, move);
                 // TODO: Update game data with move
                 // TODO: Use try/catch to catch invalid move exception, if there is exception, send the single session a message
+                ChessGame updatedGame = gameDataAccess.getGame(gameID).game();
+                ChessGame.TeamColor currentTurn = updatedGame.getTeamTurn();
+                var loadGameMessage = new LoadGameMessage(updatedGame);
+                connections.broadcast(gameID, null, loadGameMessage);
+
                 var message = String.format("%s moved %s%d to %s%d.%s", authData.username(),
                         translateNumber(move.getStartPosition().getColumn()),
                         move.getStartPosition().getRow(),
@@ -137,8 +142,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.broadcast(userGameCommand.getGameID(), session, notification);
                 // TODO: Check if in check/checkmate/stalemate, if so broadcast to all sessions
                 // TODO: If checkmate/stalemate, make sure that no more moves can be made
-                ChessGame updatedGame = gameDataAccess.getGame(gameID).game();
-                ChessGame.TeamColor currentTurn = updatedGame.getTeamTurn();
                 Notification gameStatus;
                 if (updatedGame.isInCheckmate(currentTurn)) {
                     if (currentTurn == ChessGame.TeamColor.WHITE) {
@@ -146,30 +149,28 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     } else {
                         gameStatus = new Notification("Game over. White wins.");
                     }
-                    connections.broadcast(userGameCommand.getGameID(), session, gameStatus);
+                    connections.broadcast(userGameCommand.getGameID(), null, gameStatus);
                 } else if (updatedGame.isInCheck(currentTurn)) {
                     if (currentTurn == ChessGame.TeamColor.WHITE) {
                         gameStatus = new Notification("White is in check.");
                     } else {
                         gameStatus = new Notification("Black is in check.");
                     }
-                    connections.broadcast(userGameCommand.getGameID(), session, gameStatus);
+                    connections.broadcast(userGameCommand.getGameID(), null, gameStatus);
                 } else if (updatedGame.isInStalemate(currentTurn)) {
                     if (currentTurn == ChessGame.TeamColor.WHITE) {
                         gameStatus = new Notification("Game over. White is in stalemate. It's a draw.");
                     } else {
                         gameStatus = new Notification("Game over. Black is in stalemate. It's a draw.");
                     }
-                    connections.broadcast(userGameCommand.getGameID(), session, gameStatus);
+                    connections.broadcast(userGameCommand.getGameID(), null, gameStatus);
                 }
             } catch (Exception e) {
-                var invalid_message = "That isn't a valid move. Use the command highlight_moves <piece_position> to " +
-                        "see valid moves to be made for that piece.";
-                connections.singleSend(session, new ErrorMessage(invalid_message));
+                connections.singleSend(session, new ErrorMessage(e.getMessage()));
             }
         } catch (Exception e) {
-            throw new DataAccessException("Invalid move entered. Try make_move <original_position> <new_position>. " +
-                    "Ex: 'make_move e2 e4'.");
+            throw new DataAccessException("Error: Invalid move entered. Try make_move <original_position> " +
+                    "<new_position>. Ex: 'make_move e2 e4'.");
         }
     }
 
