@@ -22,6 +22,7 @@ public class Client implements NotificationHandler{
     private Integer gameID = null;
     private ChessGame currentGame = null;
     private ArrayList<GameData> mostRecentlyListedGames = null;
+    private boolean consideringResigning = false;
 
     public Client(String serverUrl) throws ServerFacadeException {
         server = new ServerFacade(serverUrl);
@@ -40,15 +41,6 @@ public class Client implements NotificationHandler{
 
             try {
                 result = eval(line);
-                if (state == State.OBSERVINGGAME && ) {
-                    printBoardWhite();
-                } else if (state == State.PLAYINGGAME) {
-                    if (playerColor == ChessGame.TeamColor.WHITE) {
-                        printBoardWhite();
-                    } else {
-                        printBoardBlack();
-                    }
-                }
                 System.out.print(EscapeSequences.SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -78,6 +70,7 @@ public class Client implements NotificationHandler{
                 case "quit" -> "quit";
                 case "make_move" -> makeMove(params);
                 case "redraw_board" -> redrawBoard();
+                case "resign" -> resign();
                 default -> help();
             };
         } catch (ServerFacadeException ex) {
@@ -427,6 +420,36 @@ public class Client implements NotificationHandler{
 
     // e2 e4 none
     public String makeMove(String... params) throws ServerFacadeException {
+        if (state == State.PLAYINGGAME) {
+            if (params.length >= 3) {
+                try {
+                    ChessPiece.PieceType promotionPiece;
+                    switch (params[2]) {
+                        case "Q" -> promotionPiece = ChessPiece.PieceType.QUEEN;
+                        case "R" -> promotionPiece = ChessPiece.PieceType.ROOK;
+                        case "N" -> promotionPiece = ChessPiece.PieceType.KNIGHT;
+                        case "B" -> promotionPiece = ChessPiece.PieceType.BISHOP;
+                        default -> promotionPiece = null;
+                    }
+                    ChessMove move = new ChessMove(new ChessPosition(translateLetter(params[0].charAt(0)), params[0].charAt(1)),
+                            new ChessPosition(translateLetter(params[0].charAt(0)), params[0].charAt(1)),
+                            promotionPiece);
+
+                    websocket.moveMade(move, loginData.authToken(), gameID);
+                    return "Move successful.";
+                } catch (Exception e) {
+                    throw new ServerFacadeException(e.getMessage());
+                }
+            } else {
+                throw new ServerFacadeException("Error: Invalid move format. Use make_move <start_position> " +
+                        "<end_position> <promotion_piece>. Ex: 'make_move e2 e4 none'.");
+            }
+        } else {
+            throw new ServerFacadeException("Error: Must be playing a game to perform this action.");
+        }
+    }
+
+    public String resign() throws ServerFacadeException {
         if (state == State.PLAYINGGAME) {
             if (params.length >= 3) {
                 try {

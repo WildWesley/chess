@@ -205,30 +205,22 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void leaveGame(UserGameCommand userGameCommand, Session session) throws IOException, DataAccessException {
+    private void newPlayer(UserGameCommand userGameCommand, Session session) throws IOException, DataAccessException {
         try {
+            String message;
             AuthData authData = authDataAccess.getAuth(userGameCommand.getAuthToken());
             Integer gameID = userGameCommand.getGameID();
             String username = authData.username();
             GameData gameData = gameDataAccess.getGame(gameID);
-            var message = String.format("%s has left the game.", authData.username());
+            if (gameData.whiteUsername().equals(username)) {
+                message = String.format("%s has joined the game as white.", username);
+            } else if (gameData.blackUsername().equals(username)) {
+                message = String.format("%s has joined the game as black.", username);
+            } else {
+                message = String.format("%s has joined the game as an observer.", username);
+            }
             var notification = new Notification(message);
             connections.broadcast(gameID, session, notification);
-            if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
-                GameData updatedGameData = new GameData(gameData.gameID(),
-                        null,
-                        gameData.blackUsername(),
-                        gameData.gameName(),
-                        gameData.game());
-                gameDataAccess.updateGameData(gameID, updatedGameData);
-            } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(username)) {
-                GameData updatedGameData = new GameData(gameData.gameID(),
-                        gameData.whiteUsername(),
-                        null,
-                        gameData.gameName(),
-                        gameData.game());
-                gameDataAccess.updateGameData(gameID, updatedGameData);
-            }
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
         }
