@@ -20,13 +20,12 @@ public class Client implements NotificationHandler{
     private ChessGame.TeamColor playerColor = null;
     private AuthData loginData = null;
     private Integer gameID = null;
-    private ChessBoard starterBoard = new ChessBoard();
+    private ChessGame currentGame = null;
     private ArrayList<GameData> mostRecentlyListedGames = null;
 
     public Client(String serverUrl) throws ServerFacadeException {
         server = new ServerFacade(serverUrl);
         websocket = new WebSocketFacade(serverUrl, this);
-        starterBoard.resetBoard();
     }
 
     public void run() {
@@ -78,6 +77,7 @@ public class Client implements NotificationHandler{
                 case "observe_game" -> observeGame(params);
                 case "quit" -> "quit";
                 case "make_move" -> makeMove(params);
+                case "redraw_board" -> redrawBoard();
                 default -> help();
             };
         } catch (ServerFacadeException ex) {
@@ -455,6 +455,29 @@ public class Client implements NotificationHandler{
         }
     }
 
+    public String redrawBoard() {
+        if (playerColor == ChessGame.TeamColor.BLACK) {
+            printBoardBlack(currentGame);
+        } else {
+            printBoardWhite(currentGame);
+        }
+        return "Board successfully redrawn!";
+    }
+
+    public String leaveGame() throws ServerFacadeException {
+        if (state == State.PLAYINGGAME || state == State.OBSERVINGGAME) {
+            if (state == State.PLAYINGGAME) {
+                websocket.leftGame(loginData.authToken(), gameID);
+            } else {
+                websocket.leftGame(loginData.authToken(), gameID);
+            }
+            state = State.SIGNEDIN;
+            return "Successfully left game.";
+        } else {
+            throw new ServerFacadeException("Error: Must be playing or observing game to use command.");
+        }
+    }
+
     @Override
     public void notify(Notification notification) {
         System.out.println(EscapeSequences.SET_TEXT_COLOR_RED + notification.getMessage());
@@ -469,10 +492,7 @@ public class Client implements NotificationHandler{
 
     @Override
     public void loadGame(ChessGame game) {
-        if (playerColor == ChessGame.TeamColor.WHITE) {
-            printBoardWhite(game);
-        } else {
-            printBoardBlack(game);
-        }
+        currentGame = game;
+        redrawBoard();
     }
 }

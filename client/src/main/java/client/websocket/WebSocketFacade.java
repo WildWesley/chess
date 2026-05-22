@@ -36,7 +36,7 @@ public class WebSocketFacade extends Endpoint {
                         notificationHandler.notify(notification);
                     } else if (msg.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                         ErrorMessage errorMsg = new Gson().fromJson(message, ErrorMessage.class);
-                        // TODO: Create a notifyError method in client AND NotifcationHandler to handle error messages
+                        // TODO: Create a notifyError method in client AND NotificationHandler to handle error messages
                         notificationHandler.notifyError(errorMsg);
                     } else if (msg.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
                         // TODO: Create a loadGame method in client AND NotificationHandler to call draw_board method
@@ -77,19 +77,15 @@ public class WebSocketFacade extends Endpoint {
         try {
             var action = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE,
                     authToken, gameID, move);
-
-
-
-
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (Exception ex) {
             throw new ServerFacadeException(ex.getMessage());
         }
     }
 
-    public void leftGame(String playerName) throws ServerFacadeException {
+    public void leftGame(String authToken, int gameID) throws ServerFacadeException {
         try {
-            var action = new Action(Action.Type.ENTER, playerName);
+            var action = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, null);
             this.session.getBasicRemote().sendText(new Gson().toJson(action));
         } catch (Exception ex) {
             throw new ServerFacadeException("Error: unable to notify of player leaving.");

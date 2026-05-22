@@ -9,6 +9,8 @@ import dataaccess.GameDataAccess;
 import dataaccess.UserDataAccess;
 import io.javalin.websocket.*;
 import model.AuthData;
+import model.GameData;
+import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
 import server.Server;
 import service.ChessService;
@@ -20,13 +22,11 @@ import java.io.IOException;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final ConnectionManager connections = new ConnectionManager();
-    private ChessService service;
     AuthDataAccess authDataAccess;
     UserDataAccess userDataAccess;
     GameDataAccess gameDataAccess;
 
     public WebSocketHandler(ChessService service) {
-        this.service = service;
         this.authDataAccess = service.getAuthDataAccess();
         this.userDataAccess = service.getUserDataAccess();
         this.gameDataAccess = service.getGameDataAccess();
@@ -44,6 +44,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand userGameCommand = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (userGameCommand.getCommandType()) {
                 case MAKE_MOVE -> makeMove(userGameCommand, ctx.session);
+                case LEAVE -> leaveGame(userGameCommand, ctx.session);
             }
         } catch (IOException | DataAccessException ex) {
             ex.printStackTrace();
@@ -124,7 +125,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             Integer gameID = userGameCommand.getGameID();
             ChessMove move = userGameCommand.getMove();
             try {
-                gameDataAccess.updateGameData(gameID, move);
+                gameDataAccess.updateGame(gameID, move);
                 // TODO: Update game data with move
                 // TODO: Use try/catch to catch invalid move exception, if there is exception, send the single session a message
                 ChessGame updatedGame = gameDataAccess.getGame(gameID).game();
@@ -171,6 +172,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (Exception e) {
             throw new DataAccessException("Error: Invalid move entered. Try make_move <original_position> " +
                     "<new_position>. Ex: 'make_move e2 e4'.");
+        }
+    }
+
+    private void leaveGame(UserGameCommand userGameCommand, Session session) throws IOException, DataAccessException {
+        try {
+            AuthData authData = authDataAccess.getAuth(userGameCommand.getAuthToken());
+            Integer gameID = userGameCommand.getGameID();
+            String username = authData.username();
+            GameData gameData = gameDataAccess.getGame(gameID);
+            if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
+                GameData updatedGameData = new GameData(gameData.gameID(),
+                        null,
+                        gameData.blackUsername(),
+                        gameData.gameName(),
+                        gameData.game());
+                gameDataAccess.updateGameData(gameID, updatedGameData);
+            } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(username)) {
+                GameData updatedGameData = new GameData(gameData.gameID(),
+                        gameData.whiteUsername(),
+                        null,
+                        gameData.gameName(),
+                        gameData.game());
+                gameDataAccess.updateGameData(gameID, updatedGameData);
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
 

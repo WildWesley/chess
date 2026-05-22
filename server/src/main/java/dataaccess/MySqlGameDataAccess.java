@@ -132,9 +132,23 @@ public class MySqlGameDataAccess implements GameDataAccess {
         }
     }
 
-    // TODO: Update GameData
     @Override
-    public void updateGameData(int gameID, ChessMove move) throws DataAccessException {
+    public void updateGameData(int gameID, GameData gameData) throws DataAccessException {
+        var statement = "UPDATE games SET whiteUsername=? blackUsername=? WHERE gameID=?";
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var preparedStatement = conn.prepareStatement(statement)) {
+                preparedStatement.setString(1, gameData.whiteUsername());
+                preparedStatement.setString(2, gameData.blackUsername());
+                preparedStatement.setInt(3, gameID);
+                preparedStatement.executeUpdate();
+            }
+        } catch (Exception e) {
+            throw new DataAccessException("Error: unable to update game");
+        }
+    }
+
+    @Override
+    public void updateGame(int gameID, ChessMove move) throws DataAccessException {
         GameData currentGameData = getGame(gameID);
         ChessGame currentGame = currentGameData.game();
         try {
