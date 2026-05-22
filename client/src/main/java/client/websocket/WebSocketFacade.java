@@ -55,21 +55,13 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void newPlayer(String playerName) throws ServerFacadeException {
+    public void newPlayer(String authToken, int gameID) throws ServerFacadeException {
         try {
-            var action = new Action(Action.Type.ENTER, playerName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
+            UserGameCommand userGameCommand = new UserGameCommand(UserGameCommand.CommandType.CONNECT,
+                    authToken, gameID, null);
+            this.session.getBasicRemote().sendText(new Gson().toJson(userGameCommand));
         } catch (Exception ex) {
             throw new ServerFacadeException("Error: unable to notify of new player.");
-        }
-    }
-
-    public void newObserver(String observerName) throws ServerFacadeException {
-        try {
-            var action = new Action(Action.Type.ENTER, observerName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (Exception ex) {
-            throw new ServerFacadeException("Error: unable to notify of new observer.");
         }
     }
 

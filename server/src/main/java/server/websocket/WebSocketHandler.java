@@ -45,6 +45,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (userGameCommand.getCommandType()) {
                 case MAKE_MOVE -> makeMove(userGameCommand, ctx.session);
                 case LEAVE -> leaveGame(userGameCommand, ctx.session);
+                case CONNECT -> newPlayer(userGameCommand, ctx.session);
             }
         } catch (IOException | DataAccessException ex) {
             ex.printStackTrace();
@@ -204,20 +205,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void exit(String visitorName, Session session) throws IOException {
-        var message = String.format("%s left the shop", visitorName);
-        var notification = new Notification(Notification.Type.DEPARTURE, message);
-        connections.broadcast(session, notification);
-        connections.remove(session);
-    }
-
-    public void makeNoise(String petName, String sound) throws ResponseException {
+    private void leaveGame(UserGameCommand userGameCommand, Session session) throws IOException, DataAccessException {
         try {
-            var message = String.format("%s says %s", petName, sound);
-            var notification = new Notification(Notification.Type.NOISE, message);
-            connections.broadcast(null, notification);
-        } catch (Exception ex) {
-            throw new ResponseException(ResponseException.Code.ServerError, ex.getMessage());
+            AuthData authData = authDataAccess.getAuth(userGameCommand.getAuthToken());
+            Integer gameID = userGameCommand.getGameID();
+            String username = authData.username();
+            GameData gameData = gameDataAccess.getGame(gameID);
+            var message = String.format("%s has left the game.", authData.username());
+            var notification = new Notification(message);
+            connections.broadcast(gameID, session, notification);
+            if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
+                GameData updatedGameData = new GameData(gameData.gameID(),
+                        null,
+                        gameData.blackUsername(),
+                        gameData.gameName(),
+                        gameData.game());
+                gameDataAccess.updateGameData(gameID, updatedGameData);
+            } else if (gameData.blackUsername() != null && gameData.blackUsername().equals(username)) {
+                GameData updatedGameData = new GameData(gameData.gameID(),
+                        gameData.whiteUsername(),
+                        null,
+                        gameData.gameName(),
+                        gameData.game());
+                gameDataAccess.updateGameData(gameID, updatedGameData);
+            }
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
 }

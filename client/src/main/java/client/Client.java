@@ -207,6 +207,7 @@ public class Client implements NotificationHandler{
                         throw new ServerFacadeException("Invalid player color. Try 'WHITE' or 'BLACK'.");
                     }
                     state = State.PLAYINGGAME;
+                    websocket.newPlayer(loginData.authToken(), gameID);
                     return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                 } catch (ServerFacadeException e) {
                     if (e.errorCode == 403) {
