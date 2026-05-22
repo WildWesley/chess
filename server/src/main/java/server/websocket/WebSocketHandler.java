@@ -181,6 +181,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             Integer gameID = userGameCommand.getGameID();
             String username = authData.username();
             GameData gameData = gameDataAccess.getGame(gameID);
+            var message = String.format("%s has left the game.", authData.username());
+            var notification = new Notification(message);
+            connections.broadcast(gameID, session, notification);
             if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
                 GameData updatedGameData = new GameData(gameData.gameID(),
                         null,
