@@ -75,6 +75,7 @@ public class Client implements NotificationHandler{
                 case "make_move" -> makeMove(params);
                 case "redraw_board" -> redrawBoard();
                 case "resign" -> resign();
+                case "highlight_moves" -> highlightMoves();
                 default -> help();
             };
         } catch (ServerFacadeException ex) {
@@ -109,6 +110,7 @@ public class Client implements NotificationHandler{
                     loginData = loginResponse;
                     return String.format("Welcome back %s.", loginResponse.username());
                 }
+                throw new ServerFacadeException("Error: login failed.");
             } catch (ServerFacadeException e) {
                 throw new ServerFacadeException("Login information incorrect. Expected: " +
                         "'login <username> <password>'. Please try again or register");
@@ -311,13 +313,27 @@ public class Client implements NotificationHandler{
         System.out.print(output);
     }
 
-    public void printSpace(ChessBoard board, int row, int col) {
+    public void printSpace(ChessBoard board, int row, int col, ChessPosition highlightPosition) {
         ChessPosition positionInQuestion = new ChessPosition(row, col);
         ChessPiece pieceAtPosition = board.getPiece(positionInQuestion);
+        ArrayList<ChessPosition> validPositions = new ArrayList<>();
+        if (highlightPosition != null) {
+            ChessPiece highlightPiece = board.getPiece(highlightPosition);
+            ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) highlightPiece.pieceMoves(board, highlightPosition);
+            for (ChessMove move : validMoves) {
+                validPositions.add(move.getEndPosition());
+            }
+        }
         if (whiteSpace(positionInQuestion)) {
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_BROWN);
+            if (validPositions.contains(positionInQuestion)) {
+                System.out.print(EscapeSequences.SET_BG_COLOR_GREEN);
+            }
         } else {
             System.out.print(EscapeSequences.SET_BG_COLOR_BROWN);
+            if (validPositions.contains(positionInQuestion)) {
+                System.out.print(EscapeSequences.SET_BG_COLOR_DARK_GREEN);
+            }
         }
 
         if (pieceAtPosition == null) {
@@ -329,7 +345,7 @@ public class Client implements NotificationHandler{
 
     // Important to remember that when adding up i and j, if they are odd, it's light,
     // and if they're even, it's dark
-    public void printBoardWhite(ChessGame game) {
+    public void printBoardWhite(ChessGame game, ChessPosition highlightPosition) {
         ChessBoard board = game.getBoard();
         ArrayList<String> boardLetters =
                 new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " a\u2003", " b\u2003", " c\u2003", " d\u2003",
@@ -345,7 +361,7 @@ public class Client implements NotificationHandler{
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
                     Integer.toString(i) + " ");
             for (int j = 1; j <= 8; j++) {
-                printSpace(board, i, j);
+                printSpace(board, i, j, highlightPosition);
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
@@ -359,7 +375,7 @@ public class Client implements NotificationHandler{
         }
     }
 
-    public void printBoardBlack(ChessGame game) {
+    public void printBoardBlack(ChessGame game, ChessPosition highlightPosition) {
         ChessBoard board = game.getBoard();
         ArrayList<String> boardLetters =
                 new ArrayList<>(Arrays.asList(EscapeSequences.EMPTY, " h\u2003", " g\u2003", " f\u2003", " e\u2003",
@@ -375,7 +391,7 @@ public class Client implements NotificationHandler{
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
                     Integer.toString(i) + " ");
             for (int j = 8; j >= 1; j--) {
-                printSpace(board, i, j);
+                printSpace(board, i, j, highlightPosition);
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
@@ -440,7 +456,7 @@ public class Client implements NotificationHandler{
                             promotionPiece);
 
                     websocket.moveMade(move, loginData.authToken(), gameID);
-                    return "Move successful.";
+                    return "";
                 } catch (Exception e) {
                     throw new ServerFacadeException(e.getMessage());
                 }
@@ -463,6 +479,7 @@ public class Client implements NotificationHandler{
                     if (params.length >= 1) {
                         if (Objects.equals(params[0], "yes")) {
                             websocket.playerResigned(loginData.authToken(), gameID);
+                            consideringResigning = false;
                             return "Successfully resigned.";
                         } else {
                             consideringResigning = false;
@@ -482,6 +499,7 @@ public class Client implements NotificationHandler{
     }
 
     public String redrawBoard() {
+        System.out.print("\n");
         if (playerColor == ChessGame.TeamColor.BLACK) {
             printBoardBlack(currentGame);
         } else {
@@ -502,6 +520,10 @@ public class Client implements NotificationHandler{
         } else {
             throw new ServerFacadeException("Error: Must be playing or observing game to use command.");
         }
+    }
+
+    public void highlightMoves(String... params) {
+
     }
 
     @Override
