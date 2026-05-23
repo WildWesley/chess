@@ -23,8 +23,8 @@ public class ConnectionManager {
         }
     }
 
-    public void remove(Session session) {
-        connections.remove(session);
+    public void remove(int gameID, Session session) {
+        connections.get(gameID).remove(session);
     }
 
     // TODO: singleSend(authToken) method that sends to a session

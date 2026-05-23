@@ -221,9 +221,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         gameData.gameName(),
                         gameData.game());
                 gameDataAccess.updateGameData(gameID, updatedGameData);
-            } else {
-                connections.singleSend(session, new ErrorMessage("Error: game observers cannot resign."));
             }
+            connections.remove(gameID, session);
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
         }
@@ -278,7 +277,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 } else if (gameData.blackUsername().equals(username)) {
                     message = String.format("%s resigned from the game. White wins.", username);
                 } else {
-                    message = "Error: player was not playing game.";
+                    connections.singleSend(session, new ErrorMessage("Error: player was not playing game."));
+                    return;
                 }
                 // TODO: Ask if this method of updating game will work
                 gameData.game().resign();
