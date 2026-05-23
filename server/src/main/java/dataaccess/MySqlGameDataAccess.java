@@ -134,12 +134,14 @@ public class MySqlGameDataAccess implements GameDataAccess {
 
     @Override
     public void updateGameData(int gameID, GameData gameData) throws DataAccessException {
-        var statement = "UPDATE games SET whiteUsername=? blackUsername=? WHERE gameID=?";
+        var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, game=? WHERE gameID=?";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
+                String json = new Gson().toJson(gameData.game());
                 preparedStatement.setString(1, gameData.whiteUsername());
                 preparedStatement.setString(2, gameData.blackUsername());
-                preparedStatement.setInt(3, gameID);
+                preparedStatement.setString(3, json);
+                preparedStatement.setInt(4, gameID);
                 preparedStatement.executeUpdate();
             }
         } catch (Exception e) {

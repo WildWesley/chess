@@ -131,8 +131,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 gameDataAccess.updateGame(gameID, move);
                 // TODO: Update game data with move
                 // TODO: Use try/catch to catch invalid move exception, if there is exception, send the single session a message
-                ChessGame updatedGame = gameDataAccess.getGame(gameID).game();
+                GameData gameData = gameDataAccess.getGame(gameID);
+                ChessGame updatedGame = gameData.game();
                 ChessGame.TeamColor currentTurn = updatedGame.getTeamTurn();
+                if (gameData.whiteUsername().equals(authData.username())) {
+                    if (currentTurn != ChessGame.TeamColor.WHITE) {
+                        connections.singleSend(session, new ErrorMessage("Error: You can only make moves on " +
+                                "your turn."));
+                    }
+                } else if (gameData.blackUsername().equals(authData.username())) {
+                    if (currentTurn != ChessGame.TeamColor.BLACK) {
+                        connections.singleSend(session, new ErrorMessage("Error: You can only make moves on " +
+                                "your turn."));
+                    }
+                }
                 var loadGameMessage = new LoadGameMessage(updatedGame);
                 connections.broadcast(gameID, null, loadGameMessage);
 
@@ -246,7 +258,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String username = authData.username();
             GameData gameData = gameDataAccess.getGame(gameID);
             String message;
-            if (gameData.game().isGameOver()) {
+            if (!gameData.game().isGameOver()) {
                 if (gameData.whiteUsername().equals(username)) {
                     message = String.format("%s resigned from the game. Black wins.", username);
                 } else if (gameData.blackUsername().equals(username)) {
@@ -254,7 +266,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 } else {
                     message = "Error: player was not playing game.";
                 }
-                connections.broadcast(gameID, null, new Notification(message));
                 // TODO: Ask if this method of updating game will work
                 gameData.game().resign();
                 gameDataAccess.updateGameData(gameID, new GameData(gameID,
@@ -262,6 +273,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         gameData.blackUsername(),
                         gameData.gameName(),
                         gameData.game()));
+                connections.broadcast(gameID, null, new Notification(message));
             } else {
                 connections.singleSend(session, new ErrorMessage("Error: Cannot resign when game is over."));
             }
