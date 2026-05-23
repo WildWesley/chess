@@ -452,8 +452,10 @@ public class Client implements NotificationHandler{
                         case "B" -> promotionPiece = ChessPiece.PieceType.BISHOP;
                         default -> promotionPiece = null;
                     }
-                    ChessMove move = new ChessMove(new ChessPosition(params[0].charAt(1), translateLetter(params[0].charAt(0))),
-                            new ChessPosition(params[0].charAt(1), translateLetter(params[0].charAt(0))),
+                    ChessMove move = new ChessMove(new ChessPosition(Character.getNumericValue(params[0].charAt(1)),
+                            translateLetter(params[0].charAt(0))),
+                            new ChessPosition(Character.getNumericValue(params[1].charAt(1)),
+                            translateLetter(params[1].charAt(0))),
                             promotionPiece);
 
                     websocket.moveMade(move, loginData.authToken(), gameID);
@@ -494,8 +496,7 @@ public class Client implements NotificationHandler{
                 }
             }
         } else {
-            throw new ServerFacadeException("Error: Invalid move format. Use make_move <start_position> " +
-                    "<end_position> <promotion_piece>. Ex: 'make_move e2 e4 none'.");
+            throw new ServerFacadeException("Error: Must be playing to resign");
         }
     }
 
@@ -528,7 +529,8 @@ public class Client implements NotificationHandler{
             if (params.length >= 1) {
                 try {
                     ChessPosition highlightPosition =
-                            new ChessPosition(translateLetter(params[0].charAt(1)), params[0].charAt(0));
+                            new ChessPosition(translateLetter(params[0].charAt(1)),
+                                    Character.getNumericValue(params[0].charAt(0)));
                     redrawBoard(highlightPosition);
                     return "";
                 } catch (Exception e) {

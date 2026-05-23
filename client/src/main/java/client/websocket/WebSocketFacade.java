@@ -92,24 +92,5 @@ public class WebSocketFacade extends Endpoint {
             throw new ServerFacadeException("Error: unable to notify of player resigning.");
         }
     }
-
-    public void playerInCheck(String playerName) throws ServerFacadeException {
-        try {
-            var action = new Action(Action.Type.ENTER, playerName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (Exception ex) {
-            throw new ServerFacadeException("Error: unable to notify of player in check.");
-        }
-    }
-
-    public void playerInCheckmate(String playerName) throws ServerFacadeException {
-        try {
-            var action = new Action(Action.Type.ENTER, playerName);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (Exception ex) {
-            throw new ServerFacadeException("Error: unable to notify of player in checkmate.");
-        }
-    }
-
 }
 
