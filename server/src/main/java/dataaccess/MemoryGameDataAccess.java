@@ -43,8 +43,13 @@ public class MemoryGameDataAccess implements GameDataAccess {
     }
 
     @Override
-    public void updateGameData(int gameID, ChessMove move) {
-        return;
+    public void updateGameData(int gameID, GameData gameData) throws DataAccessException {
+
+    }
+
+    @Override
+    public void updateGame(int gameID, ChessMove move) throws DataAccessException {
+
     }
 
     @Override

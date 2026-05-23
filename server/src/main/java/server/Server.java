@@ -7,7 +7,6 @@ import io.javalin.*;
 import io.javalin.http.Context;
 import model.*;
 import server.websocket.WebSocketHandler;
-import websocket.*;
 import service.ChessService;
 
 import javax.xml.crypto.Data;

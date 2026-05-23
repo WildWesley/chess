@@ -28,8 +28,8 @@ public class ConnectionManager {
     }
 
     // TODO: singleSend(authToken) method that sends to a session
-    public void singleSend(Session session, ErrorMessage errorMessage) throws IOException {
-        String msg = errorMessage.toString();
+    public void singleSend(Session session, ServerMessage message) throws IOException {
+        String msg = message.toString();
         if (session.isOpen()) {
             session.getRemote().sendString(msg);
         }

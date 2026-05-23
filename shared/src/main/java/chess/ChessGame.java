@@ -152,6 +152,10 @@ public class ChessGame {
         // Change team turn
     }
 
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
     public void resign() {
         gameOver = true;
     }
