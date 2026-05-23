@@ -73,9 +73,10 @@ public class Client implements NotificationHandler{
                 case "observe_game" -> observeGame(params);
                 case "quit" -> "quit";
                 case "make_move" -> makeMove(params);
-                case "redraw_board" -> redrawBoard();
+                case "redraw_board" -> redrawBoard(null);
                 case "resign" -> resign();
-                case "highlight_moves" -> highlightMoves();
+                case "leave_game" -> leaveGame();
+                case "highlight_moves" -> highlightMoves(params);
                 default -> help();
             };
         } catch (ServerFacadeException ex) {
@@ -451,8 +452,8 @@ public class Client implements NotificationHandler{
                         case "B" -> promotionPiece = ChessPiece.PieceType.BISHOP;
                         default -> promotionPiece = null;
                     }
-                    ChessMove move = new ChessMove(new ChessPosition(translateLetter(params[0].charAt(0)), params[0].charAt(1)),
-                            new ChessPosition(translateLetter(params[0].charAt(0)), params[0].charAt(1)),
+                    ChessMove move = new ChessMove(new ChessPosition(params[0].charAt(1), translateLetter(params[0].charAt(0))),
+                            new ChessPosition(params[0].charAt(1), translateLetter(params[0].charAt(0))),
                             promotionPiece);
 
                     websocket.moveMade(move, loginData.authToken(), gameID);
@@ -498,12 +499,12 @@ public class Client implements NotificationHandler{
         }
     }
 
-    public String redrawBoard() {
+    public String redrawBoard(ChessPosition highlightPosition) {
         System.out.print("\n");
         if (playerColor == ChessGame.TeamColor.BLACK) {
-            printBoardBlack(currentGame);
+            printBoardBlack(currentGame, highlightPosition);
         } else {
-            printBoardWhite(currentGame);
+            printBoardWhite(currentGame, highlightPosition);
         }
         return "Board successfully redrawn!";
     }
@@ -522,8 +523,24 @@ public class Client implements NotificationHandler{
         }
     }
 
-    public void highlightMoves(String... params) {
-
+    public String highlightMoves(String... params) throws ServerFacadeException {
+        if (state == State.PLAYINGGAME || state == State.OBSERVINGGAME) {
+            if (params.length >= 1) {
+                try {
+                    ChessPosition highlightPosition =
+                            new ChessPosition(translateLetter(params[0].charAt(1)), params[0].charAt(0));
+                    redrawBoard(highlightPosition);
+                    return "";
+                } catch (Exception e) {
+                    throw new ServerFacadeException("Error: Unable to highlight piece moves.");
+                }
+            } else {
+                throw new ServerFacadeException("Error: Invalid command format. Use 'highlight_moves " +
+                        "<piece_position>.");
+            }
+        } else {
+            throw new ServerFacadeException("Error: Must be playing or observing to highlight_moves.");
+        }
     }
 
     @Override
@@ -541,6 +558,6 @@ public class Client implements NotificationHandler{
     @Override
     public void loadGame(ChessGame game) {
         currentGame = game;
-        redrawBoard();
+        redrawBoard(null);
     }
 }
