@@ -133,7 +133,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 GameData gameData = gameDataAccess.getGame(gameID);
                 ChessGame updatedGame = gameData.game();
                 ChessGame.TeamColor currentTurn = updatedGame.getTeamTurn();
-                if (gameData.whiteUsername().equals(authData.username())) {
+                if (updatedGame.isGameOver()) {
+                    connections.singleSend(session, new ErrorMessage("Error: Cannot make moves when game is over."));
+                    return;
+                } else if (gameData.whiteUsername().equals(authData.username())) {
                     if (currentTurn != ChessGame.TeamColor.WHITE) {
                         connections.singleSend(session, new ErrorMessage("Error: You can only make moves on " +
                                 "your turn."));
@@ -145,8 +148,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                                 "your turn."));
                         return;
                     }
-                } else if (gameData.game().isGameOver()) {
-                    connections.singleSend(session, new ErrorMessage("Error: Cannot make move when game is over."));
+                } else {
+                    connections.singleSend(session, new ErrorMessage("Error: Cannot make move as an observer."));
                     return;
                 }
                 gameDataAccess.updateGame(gameID, move);
