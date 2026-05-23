@@ -528,9 +528,10 @@ public class Client implements NotificationHandler{
         if (state == State.PLAYINGGAME || state == State.OBSERVINGGAME) {
             if (params.length >= 1) {
                 try {
-                    ChessPosition highlightPosition =
-                            new ChessPosition(translateLetter(params[0].charAt(1)),
-                                    Character.getNumericValue(params[0].charAt(0)));
+                    char firstChar = params[0].charAt(1);
+                    char secondChar = params[0].charAt(0);
+                    ChessPosition highlightPosition = new ChessPosition(Character.getNumericValue(firstChar),
+                                    translateLetter(secondChar));
                     redrawBoard(highlightPosition);
                     return "";
                 } catch (Exception e) {
