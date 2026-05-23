@@ -131,9 +131,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 // TODO: Update game data with move
                 // TODO: Use try/catch to catch invalid move exception, if there is exception, send the single session a message
                 GameData gameData = gameDataAccess.getGame(gameID);
-                ChessGame updatedGame = gameData.game();
-                ChessGame.TeamColor currentTurn = updatedGame.getTeamTurn();
-                if (updatedGame.isGameOver()) {
+                ChessGame game = gameData.game();
+                ChessGame.TeamColor currentTurn = game.getTeamTurn();
+                if (game.isGameOver()) {
                     connections.singleSend(session, new ErrorMessage("Error: Cannot make moves when game is over."));
                     return;
                 } else if (gameData.whiteUsername().equals(authData.username())) {
@@ -153,6 +153,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     return;
                 }
                 gameDataAccess.updateGame(gameID, move);
+                GameData updatedData = gameDataAccess.getGame(gameID);
+                ChessGame updatedGame = updatedData.game();
+                currentTurn = updatedGame.getTeamTurn();
                 var loadGameMessage = new LoadGameMessage(updatedGame);
                 connections.broadcast(gameID, null, loadGameMessage);
 
@@ -204,9 +207,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             Integer gameID = userGameCommand.getGameID();
             String username = authData.username();
             GameData gameData = gameDataAccess.getGame(gameID);
-            var message = String.format("%s has left the game.", authData.username());
-            var notification = new Notification(message);
-            connections.broadcast(gameID, session, notification);
             if (gameData.whiteUsername() != null && gameData.whiteUsername().equals(username)) {
                 GameData updatedGameData = new GameData(gameData.gameID(),
                         null,
@@ -222,6 +222,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         gameData.game());
                 gameDataAccess.updateGameData(gameID, updatedGameData);
             }
+            var message = String.format("%s has left the game.", authData.username());
+            var notification = new Notification(message);
+            connections.broadcast(gameID, session, notification);
             connections.remove(gameID, session);
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
