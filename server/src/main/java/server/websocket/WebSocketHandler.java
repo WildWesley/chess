@@ -128,7 +128,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             Integer gameID = userGameCommand.getGameID();
             ChessMove move = userGameCommand.getMove();
             try {
-                gameDataAccess.updateGame(gameID, move);
                 // TODO: Update game data with move
                 // TODO: Use try/catch to catch invalid move exception, if there is exception, send the single session a message
                 GameData gameData = gameDataAccess.getGame(gameID);
@@ -138,13 +137,19 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     if (currentTurn != ChessGame.TeamColor.WHITE) {
                         connections.singleSend(session, new ErrorMessage("Error: You can only make moves on " +
                                 "your turn."));
+                        return;
                     }
                 } else if (gameData.blackUsername().equals(authData.username())) {
                     if (currentTurn != ChessGame.TeamColor.BLACK) {
                         connections.singleSend(session, new ErrorMessage("Error: You can only make moves on " +
                                 "your turn."));
+                        return;
                     }
+                } else if (gameData.game().isGameOver()) {
+                    connections.singleSend(session, new ErrorMessage("Error: Cannot make move when game is over."));
+                    return;
                 }
+                gameDataAccess.updateGame(gameID, move);
                 var loadGameMessage = new LoadGameMessage(updatedGame);
                 connections.broadcast(gameID, null, loadGameMessage);
 
@@ -213,6 +218,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         gameData.gameName(),
                         gameData.game());
                 gameDataAccess.updateGameData(gameID, updatedGameData);
+            } else {
+                connections.singleSend(session, new ErrorMessage("Error: game observers cannot resign."));
             }
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
@@ -223,6 +230,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             String message;
             AuthData authData = authDataAccess.getAuth(userGameCommand.getAuthToken());
+            if (authData == null) {
+                connections.singleSend(session, new ErrorMessage("Error: user not logged in."));
+                return;
+            }
             Integer gameID = userGameCommand.getGameID();
             String username = authData.username();
             GameData gameData = gameDataAccess.getGame(gameID);
