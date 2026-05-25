@@ -30,7 +30,7 @@ public class Client implements NotificationHandler{
         websocket = new WebSocketFacade(serverUrl, this);
     }
 
-    public void run() {
+    public void run() throws ServerFacadeException {
         System.out.println("Welcome to Nate's just super chess server. Sign in to play...");
         System.out.print(help());
 
@@ -40,6 +40,15 @@ public class Client implements NotificationHandler{
             printPrompt();
             if (consideringResigning) {
                 System.out.print("Are you sure that you want to resign? (yes/no)");
+                printPrompt();
+                String line = scanner.nextLine();
+                if (line.equals("yes")) {
+                    resign();
+                } else {
+                    consideringResigning = false;
+                    System.out.print("Resign canceled.");
+                }
+                printPrompt();
             }
             String line = scanner.nextLine();
 
@@ -104,17 +113,21 @@ public class Client implements NotificationHandler{
 
     public String login(String... params) throws ServerFacadeException {
         if (params.length >= 2) {
-            try {
-                AuthData loginResponse = server.login(new LoginRequest(params[0], params[1]));
-                if (loginResponse.authToken() != null) {
-                    state = State.SIGNEDIN;
-                    loginData = loginResponse;
-                    return String.format("Welcome back %s.", loginResponse.username());
+            if (state == State.SIGNEDOUT) {
+                try {
+                    AuthData loginResponse = server.login(new LoginRequest(params[0], params[1]));
+                    if (loginResponse.authToken() != null) {
+                        state = State.SIGNEDIN;
+                        loginData = loginResponse;
+                        return String.format("Welcome back %s.", loginResponse.username());
+                    }
+                    throw new ServerFacadeException("Error: login failed.");
+                } catch (ServerFacadeException e) {
+                    throw new ServerFacadeException("Login information incorrect. Expected: " +
+                            "'login <username> <password>'. Please try again or register");
                 }
-                throw new ServerFacadeException("Error: login failed.");
-            } catch (ServerFacadeException e) {
-                throw new ServerFacadeException("Login information incorrect. Expected: " +
-                        "'login <username> <password>'. Please try again or register");
+            } else {
+                throw new ServerFacadeException("Error: Must be logged out to log in.");
             }
         }
         throw new ServerFacadeException("Login format incorrect. Expected: 'login <username> <password>'");
@@ -472,25 +485,16 @@ public class Client implements NotificationHandler{
         }
     }
 
-    public String resign(String... params) throws ServerFacadeException {
+    public String resign() throws ServerFacadeException {
         if (state == State.PLAYINGGAME) {
             if (!consideringResigning) {
                 consideringResigning = true;
                 return "You are considering resigning";
             } else {
                 try {
-                    if (params.length >= 1) {
-                        if (Objects.equals(params[0], "yes")) {
-                            websocket.playerResigned(loginData.authToken(), gameID);
-                            consideringResigning = false;
-                            return "Successfully resigned.";
-                        } else {
-                            consideringResigning = false;
-                            return "Resign canceled.";
-                        }
-                    } else {
-                        throw new ServerFacadeException("Error: did not respond yes/no");
-                    }
+                    websocket.playerResigned(loginData.authToken(), gameID);
+                    consideringResigning = false;
+                    return "Successfully resigned.";
                 } catch (Exception e) {
                     throw new ServerFacadeException(e.getMessage());
                 }
@@ -512,12 +516,9 @@ public class Client implements NotificationHandler{
 
     public String leaveGame() throws ServerFacadeException {
         if (state == State.PLAYINGGAME || state == State.OBSERVINGGAME) {
-            if (state == State.PLAYINGGAME) {
-                websocket.leftGame(loginData.authToken(), gameID);
-            } else {
-                websocket.leftGame(loginData.authToken(), gameID);
-            }
+            websocket.leftGame(loginData.authToken(), gameID);
             state = State.SIGNEDIN;
+            playerColor = null;
             return "Successfully left game.";
         } else {
             throw new ServerFacadeException("Error: Must be playing or observing game to use command.");
@@ -528,10 +529,8 @@ public class Client implements NotificationHandler{
         if (state == State.PLAYINGGAME || state == State.OBSERVINGGAME) {
             if (params.length >= 1) {
                 try {
-                    char firstChar = params[0].charAt(1);
-                    char secondChar = params[0].charAt(0);
-                    ChessPosition highlightPosition = new ChessPosition(Character.getNumericValue(firstChar),
-                                    translateLetter(secondChar));
+                    ChessPosition highlightPosition = new ChessPosition(Character.getNumericValue(params[0].charAt(1)),
+                                    translateLetter(params[0].charAt(0)));
                     redrawBoard(highlightPosition);
                     return "";
                 } catch (Exception e) {
@@ -562,5 +561,6 @@ public class Client implements NotificationHandler{
     public void loadGame(ChessGame game) {
         currentGame = game;
         redrawBoard(null);
+        printPrompt();
     }
 }
