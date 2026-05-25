@@ -151,11 +151,11 @@ public class ChessService {
         if (gameData == null) {
             throw new DataAccessException("Error: bad request");
         } else if (joinGameRequest.playerColor().equals("WHITE")) {
-            if (gameData.whiteUsername() != null) {
+            if (gameData.whiteUsername() != null && !gameData.whiteUsername().equals(authData.username())) {
                 throw new DataAccessException("Error: already taken");
             }
         } else if (joinGameRequest.playerColor().equals("BLACK")) {
-            if (gameData.blackUsername() != null) {
+            if (gameData.blackUsername() != null && !gameData.blackUsername().equals(authData.username())) {
                 throw new DataAccessException("Error: already taken");
             }
         } else {
@@ -165,7 +165,6 @@ public class ChessService {
 
         if (joinGameRequest.playerColor().equals("WHITE")) {
             gameDataAccess.updateGameDataWhite(joinGameRequest.gameID(), authData.username());
-            gameData = gameDataAccess.getGame(joinGameRequest.gameID());
         } else {
             gameDataAccess.updateGameDataBlack(joinGameRequest.gameID(), authData.username());
         }

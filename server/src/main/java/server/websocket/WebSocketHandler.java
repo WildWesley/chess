@@ -125,8 +125,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
             AuthData authData = authDataAccess.getAuth(userGameCommand.getAuthToken());
+            if (authData == null) {
+                connections.singleSend(session, new ErrorMessage("Error: Not authorized"));
+                return;
+            }
+
+            String username = authData.username();
             Integer gameID = userGameCommand.getGameID();
             ChessMove move = userGameCommand.getMove();
+
+
             try {
                 // TODO: Update game data with move
                 // TODO: Use try/catch to catch invalid move exception, if there is exception, send the single session a message
@@ -136,13 +144,13 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 if (game.isGameOver()) {
                     connections.singleSend(session, new ErrorMessage("Error: Cannot make moves when game is over."));
                     return;
-                } else if (gameData.whiteUsername().equals(authData.username())) {
+                } else if (username.equals(gameData.whiteUsername())) {
                     if (currentTurn != ChessGame.TeamColor.WHITE) {
                         connections.singleSend(session, new ErrorMessage("Error: You can only make moves on " +
                                 "your turn."));
                         return;
                     }
-                } else if (gameData.blackUsername().equals(authData.username())) {
+                } else if (username.equals(gameData.blackUsername())) {
                     if (currentTurn != ChessGame.TeamColor.BLACK) {
                         connections.singleSend(session, new ErrorMessage("Error: You can only make moves on " +
                                 "your turn."));
@@ -247,9 +255,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         "a list of current, valid game ID's."));
                 return;
             }
-            if (gameData.whiteUsername().equals(username)) {
+            if (username.equals(gameData.whiteUsername())) {
                 message = String.format("%s has joined the game as white.", username);
-            } else if (gameData.blackUsername().equals(username)) {
+            } else if (username.equals(gameData.blackUsername())) {
                 message = String.format("%s has joined the game as black.", username);
             } else {
                 message = String.format("%s has joined the game as an observer.", username);
@@ -275,9 +283,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             GameData gameData = gameDataAccess.getGame(gameID);
             String message;
             if (!gameData.game().isGameOver()) {
-                if (gameData.whiteUsername().equals(username)) {
+                if (username.equals(gameData.whiteUsername())) {
                     message = String.format("%s resigned from the game. Black wins.", username);
-                } else if (gameData.blackUsername().equals(username)) {
+                } else if (username.equals(gameData.blackUsername())) {
                     message = String.format("%s resigned from the game. White wins.", username);
                 } else {
                     connections.singleSend(session, new ErrorMessage("Error: player was not playing game."));
