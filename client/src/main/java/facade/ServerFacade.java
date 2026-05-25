@@ -8,6 +8,7 @@ import java.net.http.*;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.HashMap;
 
 public class ServerFacade {
     private final HttpClient client = HttpClient.newHttpClient();
@@ -52,8 +53,10 @@ public class ServerFacade {
         var status = response.statusCode();
         ServerFacadeException exception;
         if (!isSuccessful(status)) {
-            exception = new ServerFacadeException("Server facade exception");
+            var body = response.body();
+            exception = new ServerFacadeException(new Gson().fromJson(body, HashMap.class).get("message").toString());
             exception.addErrorCode(status);
+            throw exception;
         }
 
         if (responseClass != null) {

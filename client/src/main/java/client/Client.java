@@ -209,6 +209,8 @@ public class Client implements NotificationHandler{
                                 getGameIDGivenGameNumber(Integer.parseInt(params[0])),
                                 loginData.authToken()));
                         gameID = getGameIDGivenGameNumber(Integer.parseInt(params[0]));
+                    } catch (ServerFacadeException e) {
+                        throw e;
                     } catch (Exception e) {
                         throw new ServerFacadeException("Game number must be a number.");
                     }
@@ -531,6 +533,11 @@ public class Client implements NotificationHandler{
                 try {
                     ChessPosition highlightPosition = new ChessPosition(Character.getNumericValue(params[0].charAt(1)),
                                     translateLetter(params[0].charAt(0)));
+                    ChessPiece highlightedPiece = currentGame.getBoard().getPiece(highlightPosition);
+                    if (highlightedPiece == null) {
+                        redrawBoard(null);
+                        return "";
+                    }
                     redrawBoard(highlightPosition);
                     return "";
                 } catch (Exception e) {

@@ -10,4 +10,5 @@ public class ServerFacadeException extends Exception{
     }
     public int errorCode;
     public void addErrorCode(int code) {errorCode = code;}
+    public int getErrorCode() { return errorCode; }
 }
