@@ -204,16 +204,10 @@ public class Client implements NotificationHandler{
         if (loginData.authToken() != null) {
             if (params.length >= 2) {
                 try {
-                    try {
-                        server.joinGame(new JoinGameRequest(params[1].toUpperCase(),
-                                getGameIDGivenGameNumber(Integer.parseInt(params[0])),
-                                loginData.authToken()));
-                        gameID = getGameIDGivenGameNumber(Integer.parseInt(params[0]));
-                    } catch (ServerFacadeException e) {
-                        throw e;
-                    } catch (Exception e) {
-                        throw new ServerFacadeException("Game number must be a number.");
-                    }
+                    server.joinGame(new JoinGameRequest(params[1].toUpperCase(),
+                            getGameIDGivenGameNumber(Integer.parseInt(params[0])),
+                            loginData.authToken()));
+                    gameID = getGameIDGivenGameNumber(Integer.parseInt(params[0]));
                     if (params[1].equalsIgnoreCase("WHITE")) {
                         playerColor = ChessGame.TeamColor.WHITE;
                     } else if (params[1].equalsIgnoreCase("BLACK")) {
@@ -489,17 +483,21 @@ public class Client implements NotificationHandler{
 
     public String resign() throws ServerFacadeException {
         if (state == State.PLAYINGGAME) {
-            if (!consideringResigning) {
-                consideringResigning = true;
-                return "You are considering resigning";
-            } else {
-                try {
-                    websocket.playerResigned(loginData.authToken(), gameID);
-                    consideringResigning = false;
-                    return "Successfully resigned.";
-                } catch (Exception e) {
-                    throw new ServerFacadeException(e.getMessage());
+            if (!currentGame.isGameOver()) {
+                if (!consideringResigning) {
+                    consideringResigning = true;
+                    return "You are considering resigning";
+                } else {
+                    try {
+                        websocket.playerResigned(loginData.authToken(), gameID);
+                        consideringResigning = false;
+                        return "Successfully resigned.";
+                    } catch (Exception e) {
+                        throw new ServerFacadeException(e.getMessage());
+                    }
                 }
+            } else {
+                throw new ServerFacadeException("Error: Cannot resign because game is over.");
             }
         } else {
             throw new ServerFacadeException("Error: Must be playing to resign");
