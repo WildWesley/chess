@@ -181,23 +181,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 if (updatedGame.isInCheckmate(currentTurn)) {
                     if (currentTurn == ChessGame.TeamColor.WHITE) {
                         // TODO: Use player names instead of white and black. Make sure to include white username.
-                        gameStatus = new Notification("Checkmate. Game over. Black wins.");
+                        gameStatus = new Notification(String.format("%s is in checkmate. Game over. %s wins.",
+                                gameData.whiteUsername(),
+                                username));
                     } else {
-                        gameStatus = new Notification("Checkmate. Game over. White wins.");
+                        gameStatus = new Notification(String.format("%s is in checkmate. Game over. %s wins.",
+                                gameData.blackUsername(),
+                                username));
                     }
                     connections.broadcast(userGameCommand.getGameID(), null, gameStatus);
                 } else if (updatedGame.isInCheck(currentTurn)) {
                     if (currentTurn == ChessGame.TeamColor.WHITE) {
-                        gameStatus = new Notification("White is in check.");
+                        gameStatus = new Notification(String.format("%s is in check.", gameData.whiteUsername()));
                     } else {
-                        gameStatus = new Notification("Black is in check.");
+                        gameStatus = new Notification(String.format("%s is in check.", gameData.blackUsername()));
                     }
                     connections.broadcast(userGameCommand.getGameID(), null, gameStatus);
                 } else if (updatedGame.isInStalemate(currentTurn)) {
                     if (currentTurn == ChessGame.TeamColor.WHITE) {
-                        gameStatus = new Notification("Game over. White is in stalemate. It's a draw.");
+                        gameStatus = new Notification(String.format("Game over. %s is in stalemate. It's a draw.",
+                                gameData.whiteUsername()));
                     } else {
-                        gameStatus = new Notification("Game over. Black is in stalemate. It's a draw.");
+                        gameStatus = new Notification(String.format("Game over. %s is in stalemate. It's a draw.",
+                                gameData.blackUsername()));
                     }
                     connections.broadcast(userGameCommand.getGameID(), null, gameStatus);
                 }

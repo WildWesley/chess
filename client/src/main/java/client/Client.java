@@ -241,6 +241,8 @@ public class Client implements NotificationHandler{
                 try {
                     int gameNum = Integer.parseInt(params[0]);
                     if (gameNum <= mostRecentlyListedGames.size()) {
+                        gameID = getGameIDGivenGameNumber(Integer.parseInt(params[0]));
+                        websocket.newPlayer(loginData.authToken(), gameID);
                         state = State.OBSERVINGGAME;
                         return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                     } else {
@@ -252,8 +254,7 @@ public class Client implements NotificationHandler{
                             "Please try again.");
                 }
             }
-            throw new ServerFacadeException("New game information incorrect. Expected: 'play_game <game_number>'. " +
-                    "Please try again.");
+            throw new ServerFacadeException("Command format incorrect. Expected: 'observe_game <game_number>'.");
         } else {
             throw new ServerFacadeException("Must be logged in to perform this action.");
         }
@@ -330,7 +331,8 @@ public class Client implements NotificationHandler{
         if (highlightPosition != null) {
             ChessPiece highlightPiece = board.getPiece(highlightPosition);
             // TODO: Use game.validMoves()
-            ArrayList<ChessMoves> validMoves = (ArrayList<ChessMove>) currentGame.validMoves(new ChessPosition(row, col));
+            ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>)
+                    currentGame.validMoves(new ChessPosition(row, col));
             for (ChessMove move : validMoves) {
                 validPositions.add(move.getEndPosition());
             }
