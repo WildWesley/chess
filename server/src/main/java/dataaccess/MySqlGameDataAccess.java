@@ -157,7 +157,7 @@ public class MySqlGameDataAccess implements GameDataAccess {
             currentGame.makeMove(move);
         } catch (Exception e) {
             throw new DataAccessException("Error: Invalid move. Use highlight_moves <piece_position> to see all valid " +
-                    "moves for that piece.");
+                    "moves for that piece, and remember that you can only move your own piece!");
         }
         var statement = "UPDATE games SET game=? WHERE gameID=?";
         try (var conn = DatabaseManager.getConnection()) {

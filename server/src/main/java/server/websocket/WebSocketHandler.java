@@ -180,9 +180,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 Notification gameStatus;
                 if (updatedGame.isInCheckmate(currentTurn)) {
                     if (currentTurn == ChessGame.TeamColor.WHITE) {
-                        gameStatus = new Notification("Game over. Black wins.");
+                        // TODO: Use player names instead of white and black. Make sure to include white username.
+                        gameStatus = new Notification("Checkmate. Game over. Black wins.");
                     } else {
-                        gameStatus = new Notification("Game over. White wins.");
+                        gameStatus = new Notification("Checkmate. Game over. White wins.");
                     }
                     connections.broadcast(userGameCommand.getGameID(), null, gameStatus);
                 } else if (updatedGame.isInCheck(currentTurn)) {

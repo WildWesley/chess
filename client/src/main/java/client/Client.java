@@ -240,7 +240,7 @@ public class Client implements NotificationHandler{
             if (params.length >= 1) {
                 try {
                     int gameNum = Integer.parseInt(params[0]);
-                    if (gameNum < mostRecentlyListedGames.size()) {
+                    if (gameNum <= mostRecentlyListedGames.size()) {
                         state = State.OBSERVINGGAME;
                         return String.format("Game successfully joined! Game Number: %s\n", params[0]);
                     } else {
@@ -329,7 +329,8 @@ public class Client implements NotificationHandler{
         ArrayList<ChessPosition> validPositions = new ArrayList<>();
         if (highlightPosition != null) {
             ChessPiece highlightPiece = board.getPiece(highlightPosition);
-            ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>) highlightPiece.pieceMoves(board, highlightPosition);
+            // TODO: Use game.validMoves()
+            ArrayList<ChessMoves> validMoves = (ArrayList<ChessMove>) currentGame.validMoves(new ChessPosition(row, col));
             for (ChessMove move : validMoves) {
                 validPositions.add(move.getEndPosition());
             }
@@ -464,11 +465,14 @@ public class Client implements NotificationHandler{
                     ChessMove move = new ChessMove(new ChessPosition(Character.getNumericValue(params[0].charAt(1)),
                             translateLetter(params[0].charAt(0))),
                             new ChessPosition(Character.getNumericValue(params[1].charAt(1)),
-                            translateLetter(params[1].charAt(0))),
+                                    translateLetter(params[1].charAt(0))),
                             promotionPiece);
 
                     websocket.moveMade(move, loginData.authToken(), gameID);
                     return "";
+                } catch (StringIndexOutOfBoundsException e) {
+                    throw new ServerFacadeException("Error: Incorrect command format. Try make_move " +
+                            "<original_position> <new_position>. Ex: a2 a4 none");
                 } catch (Exception e) {
                     throw new ServerFacadeException(e.getMessage());
                 }
@@ -536,6 +540,7 @@ public class Client implements NotificationHandler{
                         redrawBoard(null);
                         return "";
                     }
+                    // TODO: Move highlighted that still leaves king in check
                     redrawBoard(highlightPosition);
                     return "";
                 } catch (Exception e) {
