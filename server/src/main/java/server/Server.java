@@ -63,10 +63,6 @@ public class Server {
         }
     }
 
-    private void handleWebsocketMessages(Context ctx) throws DataAccessException {
-
-    }
-
     // These are the various handlers. Depending on what request is being made, one of these will be called, which will
     // translate the serialized information given into a java object and pass that to the correct service functions.
     // Finally, the handlers will create the Javalin outputs.
