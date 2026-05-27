@@ -118,7 +118,7 @@ public class DisplayMethods {
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
                     Integer.toString(i) + " ");
             for (int j = 8; j >= 1; j--) {
-                printSpace(board, i, j, highlightPosition);
+                printSpace(game, board, i, j, highlightPosition);
             }
             System.out.print(EscapeSequences.SET_BG_COLOR_LIGHT_GREY +
                     EscapeSequences.SET_TEXT_COLOR_BLACK + "\u2003" +
