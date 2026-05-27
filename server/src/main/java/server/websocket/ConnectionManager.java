@@ -27,7 +27,6 @@ public class ConnectionManager {
         connections.get(gameID).remove(session);
     }
 
-    // TODO: singleSend(authToken) method that sends to a session
     public void singleSend(Session session, ServerMessage message) throws IOException {
         String msg = message.toString();
         if (session.isOpen()) {

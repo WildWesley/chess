@@ -36,10 +36,10 @@ public class WebSocketFacade extends Endpoint {
                         notificationHandler.notify(notification);
                     } else if (msg.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
                         ErrorMessage errorMsg = new Gson().fromJson(message, ErrorMessage.class);
-                        // TODO: Create a notifyError method in client AND NotificationHandler to handle error messages
+                        // Create a notifyError method in client AND NotificationHandler to handle error messages
                         notificationHandler.notifyError(errorMsg);
                     } else if (msg.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-                        // TODO: Create a loadGame method in client AND NotificationHandler to call draw_board method
+                        // Create a loadGame method in client AND NotificationHandler to call draw_board method
                         LoadGameMessage loadGameMessage = new Gson().fromJson(message, LoadGameMessage.class);
                         notificationHandler.loadGame(loadGameMessage.getGame());
                     }

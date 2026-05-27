@@ -330,9 +330,8 @@ public class Client implements NotificationHandler{
         ArrayList<ChessPosition> validPositions = new ArrayList<>();
         if (highlightPosition != null) {
             ChessPiece highlightPiece = board.getPiece(highlightPosition);
-            // TODO: Use game.validMoves()
             ArrayList<ChessMove> validMoves = (ArrayList<ChessMove>)
-                    currentGame.validMoves(new ChessPosition(row, col));
+                    currentGame.validMoves(highlightPosition);
             for (ChessMove move : validMoves) {
                 validPositions.add(move.getEndPosition());
             }
@@ -542,7 +541,7 @@ public class Client implements NotificationHandler{
                         redrawBoard(null);
                         return "";
                     }
-                    // TODO: Move highlighted that still leaves king in check
+                    // Move highlighted that still leaves king in check
                     redrawBoard(highlightPosition);
                     return "";
                 } catch (Exception e) {

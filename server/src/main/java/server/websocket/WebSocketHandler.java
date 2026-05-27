@@ -118,7 +118,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void makeMove(UserGameCommand userGameCommand, Session session) throws IOException, DataAccessException {
         try {
-            // TODO: Make sure userGameCommand has all needed information
+            // Make sure userGameCommand has all needed information
             if (userGameCommand.getMove() == null) {
                 connections.singleSend(session, new ErrorMessage("Error: move input invalid. Use help to see " +
                         "example."));
@@ -136,8 +136,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
 
             try {
-                // TODO: Update game data with move
-                // TODO: Use try/catch to catch invalid move exception, if there is exception, send the single session a message
+                // Update game data with move
+                // Use try/catch to catch invalid move exception, if there is exception, send the single session a message
                 GameData gameData = gameDataAccess.getGame(gameID);
                 ChessGame game = gameData.game();
                 ChessGame.TeamColor currentTurn = game.getTeamTurn();
@@ -175,12 +175,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                         handlePromotion(move));
                 var notification = new Notification(message);
                 connections.broadcast(userGameCommand.getGameID(), session, notification);
-                // TODO: Check if in check/checkmate/stalemate, if so broadcast to all sessions
-                // TODO: If checkmate/stalemate, make sure that no more moves can be made
+                // Check if in check/checkmate/stalemate, if so broadcast to all sessions
+                // If checkmate/stalemate, make sure that no more moves can be made
                 Notification gameStatus;
                 if (updatedGame.isInCheckmate(currentTurn)) {
                     if (currentTurn == ChessGame.TeamColor.WHITE) {
-                        // TODO: Use player names instead of white and black. Make sure to include white username.
+                        // Use player names instead of white and black. Make sure to include white username.
                         gameStatus = new Notification(String.format("%s is in checkmate. Game over. %s wins.",
                                 gameData.whiteUsername(),
                                 username));
@@ -298,7 +298,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                     connections.singleSend(session, new ErrorMessage("Error: player was not playing game."));
                     return;
                 }
-                // TODO: Ask if this method of updating game will work
+                // Ask if this method of updating game will work
                 gameData.game().resign();
                 gameDataAccess.updateGameData(gameID, new GameData(gameID,
                         gameData.whiteUsername(),
